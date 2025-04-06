@@ -1,24 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <style>
+        .alert {
+            color: red;
+            margin-bottom: 15px;
+        }
+        form div {
+            margin-bottom: 10px;
+        }
+        input {
+            padding: 5px;
+            width: 200px;
+        }
+    </style>
 </head>
-
 <body>
     <h1>Login Page</h1>
+    
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
     <form method="POST" action="">
         {{ form.hidden_tag() }}
-        {{ form.username }}
-        {{ form.password }}
-        {{ form.submit }}
+        <div>
+            {{ form.login_identifier.label }}<br>
+            {{ form.login_identifier(size=32) }}
+            {% if form.login_identifier.errors %}
+                {% for error in form.login_identifier.errors %}
+                    <span style="color: red;">{{ error }}</span>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div>
+            {{ form.password.label }}<br>
+            {{ form.password(size=32) }}
+            {% if form.password.errors %}
+                {% for error in form.password.errors %}
+                    <span style="color: red;">{{ error }}</span>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div>
+            {{ form.submit() }}
+        </div>
     </form>
 
     <a href="{{ url_for('register') }}">Don't have an account? Sign Up</a>
 </body>
-
 </html>
