@@ -1,0 +1,17 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.alert {
+    color: red;
+    margin-bottom: 15px;
+}
+
+form div {
+    margin-bottom: 10px;
+}
+
+input {
+    padding: 5px;
+    width: 200px;
+}
