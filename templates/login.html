@@ -21,10 +21,10 @@
     <form method="POST" action="">
         {{ form.hidden_tag() }}
         <div>
-            {{ form.login_identifier.label }}<br>
-            {{ form.login_identifier(size=32) }}
-            {% if form.login_identifier.errors %}
-                {% for error in form.login_identifier.errors %}
+            {{ form.username_or_email.label }}<br>
+            {{ form.username_or_email(size=32) }}
+            {% if form.username_or_email.errors %}
+                {% for error in form.username_or_email.errors %}
                     <span style="color: red;">{{ error }}</span>
                 {% endfor %}
             {% endif %}
@@ -43,6 +43,6 @@
         </div>
     </form>
 
-    <a href="{{ url_for('register') }}">Don't have an account? Sign Up</a>
+    <a href="{{ url_for('email') }}">Don't have an account? Sign Up</a>
 </body>
 </html>
