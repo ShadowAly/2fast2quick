@@ -23,7 +23,7 @@ verification_codes_table = db.table("verification_codes")
 
 bcrypt = Bcrypt(app)
 
-yag = yagmail.SMTP(os.getenv("EMAIL_USERNAME"), os.getenv("EMAIL_PASSWORD"))
+yag = yagmail.SMTP(user=os.getenv("EMAIL_USERNAME"), password=os.getenv("EMAIL_PASSWORD"))
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -42,8 +42,8 @@ def load_user(user_id):
     user_data = users_table.get(doc_id=int(user_id))
     if user_data:
         return UserClass(user_data.doc_id, user_data["username"], 
-                       user_data["email"], user_data["password"],
-                       user_data.get("verified", False))
+                         user_data["email"], user_data["password"],
+                         user_data.get("verified", False))
     return None
 
 def generate_verification_code():
@@ -52,9 +52,9 @@ def generate_verification_code():
 def send_verification_email(email, code):
     try:
         contents = [
-            f"Welcome to 2f4y"
-            "Your verification code is: <strong>{code}</strong>",
-            "code expire in 15min"
+            "Welcome to 2f4y "
+            f"Your verification code is: <strong>{code}</strong> "
+            "Code expires in 15 minutes."
         ]
         yag.send(
             to=email,
@@ -68,7 +68,7 @@ def send_verification_email(email, code):
 
 class EmailVerificationForm(FlaskForm):
     email = StringField(validators=[InputRequired(), Email()],
-                      render_kw={"placeholder": "Email"})
+                        render_kw={"placeholder": "Email"})
     submit = SubmitField("Continue")
 
     def validate_email(self, email):
@@ -78,14 +78,14 @@ class EmailVerificationForm(FlaskForm):
 
 class VerificationCodeForm(FlaskForm):
     code = StringField(validators=[InputRequired(), Length(min=6, max=6)],
-                     render_kw={"placeholder": "Verification Code"})
+                       render_kw={"placeholder": "Verification Code"})
     submit = SubmitField("Verify")
 
 class SignupForm(FlaskForm):
     username = StringField(validators=[InputRequired(), Length(min=4, max=20)],
-                         render_kw={"placeholder": "Username"})
+                           render_kw={"placeholder": "Username"})
     password = PasswordField(validators=[InputRequired(), Length(min=8, max=20)],
-                           render_kw={"placeholder": "Password"})
+                             render_kw={"placeholder": "Password"})
     submit = SubmitField("Signup")
 
     def validate_username(self, username):
@@ -95,9 +95,9 @@ class SignupForm(FlaskForm):
 
 class LoginForm(FlaskForm):
     username_or_email = StringField(validators=[InputRequired()],
-                                 render_kw={"placeholder": "Username or Email"})
+                                    render_kw={"placeholder": "Username or Email"})
     password = PasswordField(validators=[InputRequired(), Length(min=8, max=20)],
-                           render_kw={"placeholder": "Password"})
+                             render_kw={"placeholder": "Password"})
     submit = SubmitField("Login")
 
 @app.route("/")
@@ -186,7 +186,7 @@ def login():
                 return redirect(url_for("email"))
             
             user = UserClass(user_data.doc_id, user_data["username"], 
-                           user_data["email"], user_data["password"], user_data.get("verified", False))
+                             user_data["email"], user_data["password"], user_data.get("verified", False))
             login_user(user)
             return redirect(url_for("dashboard"))
         flash("Invalid username/email or password")
@@ -195,8 +195,6 @@ def login():
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    if not current_user.verified:
-        flash("Please verify your email to access all features.")
     return render_template("dashboard.html", username=current_user.username)
 
 @app.route("/logout")
