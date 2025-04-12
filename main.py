@@ -17,7 +17,6 @@ load_dotenv()
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
-
 db = TinyDB("user.json")
 users_table = db.table("users")
 verification_codes_table = db.table("verification_codes")
@@ -48,14 +47,14 @@ def load_user(user_id):
     return None
 
 def generate_verification_code():
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+    return "".join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
 def send_verification_email(email, code):
     try:
         contents = [
-            f"Your verification code is: <strong>{code}</strong>",
-            "This code will expire in 15 minutes.",
-            "If you didn't request this, please ignore this email."
+            f"Welcome to 2f4y"
+            "Your verification code is: <strong>{code}</strong>",
+            "code expire in 15min"
         ]
         yag.send(
             to=email,
@@ -117,7 +116,7 @@ def email():
                 "created_at": datetime.now().isoformat(),
                 "expires_at": (datetime.now() + timedelta(minutes=15)).isoformat()
             })
-            session['email'] = form.email.data
+            session["email"] = form.email.data
             return redirect(url_for("verify_code"))
         else:
             flash("Failed to send verification email. Please try again.")
@@ -125,20 +124,20 @@ def email():
 
 @app.route("/verify-code", methods=["GET", "POST"])
 def verify_code():
-    if 'email' not in session:
+    if "email" not in session:
         return redirect(url_for("email"))
     
     form = VerificationCodeForm()
     if form.validate_on_submit():
         Verification = Query()
         code_record = verification_codes_table.get(
-            (Verification.email == session['email']) & 
+            (Verification.email == session["email"]) & 
             (Verification.code == form.code.data.upper()))
         
         if code_record:
-            expires_at = datetime.fromisoformat(code_record['expires_at'])
+            expires_at = datetime.fromisoformat(code_record["expires_at"])
             if datetime.now() < expires_at:
-                session['email_verified'] = True
+                session["email_verified"] = True
                 return redirect(url_for("signup"))
             else:
                 flash("Verification code has expired. Please request a new one.")
@@ -149,7 +148,7 @@ def verify_code():
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
-    if 'email' not in session or not session.get('email_verified'):
+    if "email" not in session or not session.get("email_verified"):
         return redirect(url_for("email"))
     
     form = SignupForm()
@@ -157,15 +156,15 @@ def signup():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
         user_id = users_table.insert({
             "username": form.username.data,
-            "email": session['email'],
+            "email": session["email"],
             "password": hashed_password,
             "verified": True
         })
-        user = UserClass(user_id, form.username.data, session['email'], hashed_password, True)
+        user = UserClass(user_id, form.username.data, session["email"], hashed_password, True)
         login_user(user)
         
-        session.pop('email', None)
-        session.pop('email_verified', None)
+        session.pop("email", None)
+        session.pop("email_verified", None)
         Verification = Query()
         verification_codes_table.remove(Verification.email == user.email)
         
