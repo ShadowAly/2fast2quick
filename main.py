@@ -6,14 +6,18 @@ from wtforms.validators import InputRequired, Length, ValidationError, Email
 from flask_bcrypt import Bcrypt
 from tinydb import TinyDB, Query
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = os.urandom(24).hex()
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
 db = TinyDB("user.json")
 users_table = db.table("users")
 
 bcrypt = Bcrypt(app)
+
 
 login_manager = LoginManager()
 login_manager.init_app(app)
