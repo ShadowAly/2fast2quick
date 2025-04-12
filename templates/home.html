@@ -1,18 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
+{% block title %}Home{% endblock %}
 
-<body>
-    <h1>Home of site</h1>
-    <a href="{{ url_for('login') }}">Login </a><br>
-    <a href="{{ url_for('Signup') }}">Sign up</a><br>
-</body>
-
-</html>
+{% block content %}
+<h1>Welcome to Our Website</h1>
+<div class="mt-4">
+    <a href="{{ url_for('email') }}" class="btn btn-primary me-2">Sign Up</a>
+    <a href="{{ url_for('login') }}" class="btn btn-secondary">Login</a>
+</div>
+{% endblock %}

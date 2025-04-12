@@ -1,16 +1,17 @@
 {% extends "base.html" %}
 
-{% block title %}Email Verification{% endblock %}
+{% block title %}Verify Code{% endblock %}
 
 {% block content %}
-<h2>Enter Your Email</h2>
-<form method="POST" action="{{ url_for('email') }}">
+<h2>Enter Verification Code</h2>
+<p>We sent a 6-digit code to {{ session['email'] }}</p>
+<form method="POST" action="{{ url_for('verify_code') }}">
     {{ form.hidden_tag() }}
     <div class="mb-3">
-        {{ form.email(class="form-control", placeholder="Email") }}
-        {% if form.email.errors %}
+        {{ form.code(class="form-control", placeholder="Verification Code") }}
+        {% if form.code.errors %}
             <div class="text-danger">
-                {% for error in form.email.errors %}
+                {% for error in form.code.errors %}
                     <small>{{ error }}</small><br>
                 {% endfor %}
             </div>
