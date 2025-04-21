@@ -75,8 +75,8 @@ def send_password_reset_email(email, token):
     try:
         reset_url = url_for('reset_password', token=token, _external=True)
         contents = [
-            "To reset your password, click the following link:",
-            f"<a href='{reset_url}'>{reset_url}</a>",
+            "To reset your password, click the following link: "
+            f"<a href='{reset_url}'>{reset_url}</a> "
             "This link will expire in 1 hour."
         ]
         yag.send(
@@ -246,12 +246,12 @@ def reset_password_request():
                 "expires_at": (datetime.now() + timedelta(hours=1)).isoformat()
             })
             if send_password_reset_email(form.email.data, token):
-                flash("Check your email for the instructions to reset your password")
+                flash("Check your email to reset your password")
                 return redirect(url_for("login"))
             else:
                 flash("Error sending password reset email. Please try again.")
         else:
-            flash("If this email exists in our system, you will receive a password reset link.")
+            flash("You will receive a password reset link.")
             return redirect(url_for("login"))
     return render_template("reset_password_request.html", form=form)
 
@@ -278,7 +278,7 @@ def reset_password(token):
             hashed_password = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
             users_table.update({"password": hashed_password}, doc_ids=[user_data.doc_id])
             password_reset_tokens_table.remove(Token.token == token)
-            flash("Your password has been updated! You can now login with your new password")
+            flash("Your password has been updated!")
             return redirect(url_for("login"))
         else:
             flash("User not found")
