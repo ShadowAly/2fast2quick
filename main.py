@@ -11,6 +11,7 @@ import yagmail
 import random
 import string
 from datetime import datetime, timedelta
+import secrets
 
 load_dotenv()
 
@@ -20,6 +21,7 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 db = TinyDB("user.json")
 users_table = db.table("users")
 verification_codes_table = db.table("verification_codes")
+password_reset_tokens_table = db.table("password_reset_tokens")
 
 bcrypt = Bcrypt(app)
 
@@ -49,6 +51,9 @@ def load_user(user_id):
 def generate_verification_code():
     return "".join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
+def generate_reset_token():
+    return secrets.token_urlsafe(32)
+
 def send_verification_email(email, code):
     try:
         contents = [
@@ -59,6 +64,24 @@ def send_verification_email(email, code):
         yag.send(
             to=email,
             subject="Your Email Verification Code",
+            contents=contents
+        )
+        return True
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        return False
+
+def send_password_reset_email(email, token):
+    try:
+        reset_url = url_for('reset_password', token=token, _external=True)
+        contents = [
+            "To reset your password, click the following link:",
+            f"<a href='{reset_url}'>{reset_url}</a>",
+            "This link will expire in 1 hour."
+        ]
+        yag.send(
+            to=email,
+            subject="Password Reset Request",
             contents=contents
         )
         return True
@@ -99,6 +122,22 @@ class LoginForm(FlaskForm):
     password = PasswordField(validators=[InputRequired(), Length(min=8, max=20)],
                              render_kw={"placeholder": "Password"})
     submit = SubmitField("Login")
+
+class ResetPasswordRequestForm(FlaskForm):
+    email = StringField(validators=[InputRequired(), Email()],
+                        render_kw={"placeholder": "Email"})
+    submit = SubmitField("Request Password Reset")
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField(validators=[InputRequired(), Length(min=8, max=20)],
+                             render_kw={"placeholder": "New Password"})
+    confirm_password = PasswordField(validators=[InputRequired(), Length(min=8, max=20)],
+                                     render_kw={"placeholder": "Confirm New Password"})
+    submit = SubmitField("Reset Password")
+
+    def validate_confirm_password(self, confirm_password):
+        if self.password.data != confirm_password.data:
+            raise ValidationError("Passwords must match")
 
 @app.route("/")
 def home():
@@ -191,6 +230,61 @@ def login():
             return redirect(url_for("dashboard"))
         flash("Invalid username/email or password")
     return render_template("login.html", form=form)
+
+@app.route("/reset-password-request", methods=["GET", "POST"])
+def reset_password_request():
+    form = ResetPasswordRequestForm()
+    if form.validate_on_submit():
+        User = Query()
+        user_data = users_table.get(User.email == form.email.data)
+        if user_data:
+            token = generate_reset_token()
+            password_reset_tokens_table.insert({
+                "email": form.email.data,
+                "token": token,
+                "created_at": datetime.now().isoformat(),
+                "expires_at": (datetime.now() + timedelta(hours=1)).isoformat()
+            })
+            if send_password_reset_email(form.email.data, token):
+                flash("Check your email for the instructions to reset your password")
+                return redirect(url_for("login"))
+            else:
+                flash("Error sending password reset email. Please try again.")
+        else:
+            flash("If this email exists in our system, you will receive a password reset link.")
+            return redirect(url_for("login"))
+    return render_template("reset_password_request.html", form=form)
+
+@app.route("/reset-password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+    Token = Query()
+    token_record = password_reset_tokens_table.get(Token.token == token)
+    
+    if not token_record:
+        flash("Invalid or expired password reset link")
+        return redirect(url_for("reset_password_request"))
+    
+    expires_at = datetime.fromisoformat(token_record["expires_at"])
+    if datetime.now() > expires_at:
+        password_reset_tokens_table.remove(Token.token == token)
+        flash("Password reset link has expired")
+        return redirect(url_for("reset_password_request"))
+    
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        User = Query()
+        user_data = users_table.get(User.email == token_record["email"])
+        if user_data:
+            hashed_password = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
+            users_table.update({"password": hashed_password}, doc_ids=[user_data.doc_id])
+            password_reset_tokens_table.remove(Token.token == token)
+            flash("Your password has been updated! You can now login with your new password")
+            return redirect(url_for("login"))
+        else:
+            flash("User not found")
+            return redirect(url_for("reset_password_request"))
+    
+    return render_template("reset_password.html", form=form)
 
 @app.route("/dashboard")
 @login_required
