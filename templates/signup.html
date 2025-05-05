@@ -1,31 +1,81 @@
 {% extends "base.html" %}
 
-{% block title %}Sign Up{% endblock %}
-
 {% block content %}
-<h2>Create Your Account</h2>
-<form method="POST" action="{{ url_for('signup') }}">
-    {{ form.hidden_tag() }}
-    <div class="mb-3">
-        {{ form.username(class="form-control", placeholder="Username") }}
-        {% if form.username.errors %}
-            <div class="text-danger">
-                {% for error in form.username.errors %}
-                    <small>{{ error }}</small><br>
-                {% endfor %}
+<div class="container form-container">
+    <h2 class="text-center mb-4">Sign Up</h2>
+    <form method="POST" action="{{ url_for('signup') }}">
+        {{ form.hidden_tag() }}
+        
+        <div class="mb-3">
+            {{ form.username.label(class="form-label") }}
+            {{ form.username(class="form-control", placeholder="Username") }}
+            {% for error in form.username.errors %}
+                <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+        
+        <div class="mb-3">
+            {{ form.password.label(class="form-label") }}
+            <div class="input-group">
+                {{ form.password(class="form-control", placeholder="Password", id="password") }}
+                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                    <i class="bi bi-eye"></i>
+                </button>
             </div>
-        {% endif %}
-    </div>
-    <div class="mb-3">
-        {{ form.password(class="form-control", placeholder="Password") }}
-        {% if form.password.errors %}
-            <div class="text-danger">
-                {% for error in form.password.errors %}
-                    <small>{{ error }}</small><br>
-                {% endfor %}
+            {% for error in form.password.errors %}
+                <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+        
+        <div class="mb-3">
+            {{ form.confirm_password.label(class="form-label") }}
+            <div class="input-group">
+                {{ form.confirm_password(class="form-control", placeholder="Confirm Password", id="confirmPassword") }}
+                <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                    <i class="bi bi-eye"></i>
+                </button>
             </div>
-        {% endif %}
+            {% for error in form.confirm_password.errors %}
+                <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+        
+        <div class="mb-3">
+            {{ form.gender.label(class="form-label") }}
+            <div class="d-flex gap-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="gender" id="male" value="male" checked>
+                    <label class="form-check-label" for="male">Male</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="gender" id="female" value="female">
+                    <label class="form-check-label" for="female">Female</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-grid">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+    <div class="mt-3 text-center">
+        <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
     </div>
-    <button type="submit" class="btn btn-primary">{{ form.submit.label }}</button>
-</form>
+</div>
+
+<script>
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        const password = document.getElementById('password');
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        this.querySelector('i').classList.toggle('bi-eye-slash');
+    });
+
+    document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+        const confirmPassword = document.getElementById('confirmPassword');
+        const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+        confirmPassword.setAttribute('type', type);
+        this.querySelector('i').classList.toggle('bi-eye-slash');
+    });
+</script>
 {% endblock %}
