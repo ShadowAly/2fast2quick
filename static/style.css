@@ -1,18 +1,142 @@
+/* General Body Styling */
 body {
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    background-color: lightslategrey;
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to right, 
+        #1e40af 0%,        /* Dark blue at the far left */
+        #3b82f6 15%,       /* Lighter blue */
+        #000 25%,          /* Black center */
+        #000 75%,          /* Black center */
+        #9b2d20 85%,       /* Dark red */
+        #ef4444 100%);     /* Light red at the far right */
+    background-size: 100% 100%;
+    background-position: center;
+    height: 100vh;
+    color: #fff; /* White text color */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;  /* Align content at the top */
+    align-items: center;          /* Horizontally center all content */
+    line-height: 1.6;
 }
 
-.alert {
-    color: red;
+/* Positioning Sign Up and Login Buttons */
+.home-buttons {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+}
+
+.home-buttons a {
+    text-decoration: none;
+    color: #fff; /* Ensure white text color */
+    font-size: 1.1rem;
+    padding: 12px 25px;
+    border-radius: 5px;
+    margin: 10px;
+    background-color: rgba(59, 130, 246, 0.7); /* Blue with transparency */
+    border: 2px solid #1e40af; /* Blue border */
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.home-buttons a:hover {
+    background-color: rgba(59, 130, 246, 1); /* Fully blue background on hover */
+    border-color: #ff9800; /* Orange border on hover */
+}
+
+/* Home Page */
+.home-container {
+    text-align: center;  /* Center text */
+    padding: 20px;
+    max-width: 800px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Ensure content is at the top */
+    align-items: center;     /* Horizontally center content */
+}
+
+/* Title Styling */
+.home-title {
+    font-size: 4rem;
+    background: linear-gradient(to right, #1e40af, #ef4444); /* Blue and Red gradient */
+    -webkit-background-clip: text; /* Clip the gradient to the text */
+    color: transparent; /* Make text transparent to reveal gradient */
+    padding: 10px;
+    text-align: center;  /* Center align title */
+    margin-bottom: 20px;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);  /* Soft shadow */
+    background-image: linear-gradient(to right, #1e40af, #ef4444); /* Match the highlight gradient */
+    -webkit-background-clip: text; /* Ensure gradient is clipped to text */
+    color: transparent; /* Text color will be determined by the gradient */
+}
+
+/* Highlight Styling for Text */
+.highlight {
+    background: linear-gradient(to right, #1e40af, #ef4444); /* Blue and Red gradient */
+    -webkit-background-clip: text;
+    color: transparent;
+    font-weight: bold;
+}
+
+/* Home Description Styling */
+.home-description {
+    font-size: 1.25rem;
+    color: #d1d1d1; /* Light grey color */
     margin-bottom: 15px;
+    line-height: 1.8;
+    text-align: justify;  /* Justified text */
+    text-justify: inter-word; /* Ensures proper spacing */
 }
 
-form div {
-    margin-bottom: 10px;
+/* Footer Styling */
+.footer {
+    padding: 20px;
+    width: 100%;
+    background-color: transparent; /* Remove background */
+    text-align: center;
+    font-size: 1rem;
+    color: #fff;
+    position: relative;
+    bottom: 0;
 }
 
-input {
-    padding: 5px;
-    width: 200px;
+/* Footer Text Styling */
+.footer p {
+    margin: 0;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .home-title {
+        font-size: 2.5rem; /* Smaller title for smaller screens */
+    }
+
+    .home-description {
+        font-size: 1rem; /* Slightly smaller text size for readability */
+    }
+
+    .home-buttons a {
+        font-size: 1rem;
+        padding: 10px 20px;
+        margin: 5px; /* Smaller margin for buttons */
+    }
+}
+
+@media (max-width: 480px) {
+    .home-title {
+        font-size: 2rem; /* Even smaller title for mobile devices */
+    }
+
+    .home-description {
+        font-size: 0.9rem; /* Further reduce description text size */
+    }
+
+    .home-buttons a {
+        font-size: 1rem;
+        padding: 8px 15px;
+    }
 }

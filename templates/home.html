@@ -3,9 +3,54 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<h1>Welcome to Our Website</h1>
-<div class="mt-4">
-    <a href="{{ url_for('email') }}" class="btn btn-primary me-2">Sign Up</a>
-    <a href="{{ url_for('login') }}" class="btn btn-secondary">Login</a>
-</div>
+    <div class="home-container">
+        <!-- Main Title -->
+        <h1 class="home-title">
+            Welcome to <span class="highlight">Too Fast Four You</span>!
+        </h1>
+
+        <!-- Description Sections -->
+        <p class="home-description">
+            <strong>Too Fast Four You</strong> is a hub for gamers who love retro games. We provide game servers for a variety of nostalgic, classic games that have long been abandoned or no longer have official support. 
+            Our servers are designed to bring these old-school games back to life, offering a smooth, lag-free experience with the latest technology for online play.
+        </p>
+        <p class="home-description">
+            Whether you love competitive shooters, fast-paced racing games, or retro RPGs, we offer a wide range of servers to cater to different types of gaming enthusiasts. 
+            Our mission is to provide a safe, reliable, and fun environment for gamers who want to relive the golden days of gaming. We offer everything from community-driven servers to dedicated, high-performance environments for competitive play.
+        </p>
+        <p class="home-description">
+            Our servers are built with one goal in mind: to make sure your gaming experience is as close to the original as possible while giving you the stability and features modern technology can offer.
+            Imagine racing your friends in a classic racing game, or competing with players worldwide in competitive FPS games. All of that, without the hassle of server shutdowns or outdated connections.
+        </p>
+        <p class="home-description">
+            <strong>What do we offer?</strong>
+            <ul>
+                <li><strong>Competitive Games:</strong> Whether you're a pro or just enjoy casual play, our servers are designed to offer lag-free experiences for competitive gaming.</li>
+                <li><strong>Racing Games:</strong> Revive your need for speed with our racing servers. Experience classic racing games with a community of like-minded players.</li>
+                <li><strong>Multiplayer & Co-op Games:</strong> Enjoy your favorite retro multiplayer games with friends or make new ones in a community-focused environment.</li>
+                <li><strong>Custom Game Modes:</strong> Many of our servers offer custom game modes, designed to give you fresh gameplay in your favorite retro titles.</li>
+            </ul>
+        </p>
+        <p class="home-description">
+            But we don’t stop there! Our platform is continuously growing, with new servers and features being added regularly. We’re dedicated to expanding our library of supported games, ensuring that we bring back your favorite titles—both well-known and hidden gems.
+        </p>
+        <p class="home-description">
+            We believe in keeping things simple, but powerful. You won’t need to jump through hoops or navigate complicated menus to start playing. With our easy-to-use platform, you can jump right into your favorite game and begin playing within minutes.
+        </p>
+        <p class="home-description">
+            <strong>Join us today!</strong> We invite you to become part of our growing community. Whether you're here for some nostalgic fun or want to challenge others in intense online battles, <strong>Too Fast Four You</strong> has something for every type of gamer.
+            Our community is welcoming, and our servers are ready to host your best gaming moments.
+        </p>
+
+        <!-- Sign Up & Login Buttons -->
+        <div class="home-buttons">
+            <a href="{{ url_for('email') }}" class="btn btn-primary me-2">Sign Up</a>
+            <a href="{{ url_for('login') }}" class="btn btn-secondary">Login</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-5 text-center">
+        <p>&copy; 2025 <span class="highlight">Too Fast Four You</span>. All Rights Reserved.</p>
+    </footer>
 {% endblock %}
