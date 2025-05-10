@@ -52,12 +52,49 @@ def generate_verification_code():
 
 def send_verification_email(email, code):
     try:
-        contents = [
-            "Welcome to 2f4y "
-            f"Your verification code is: <strong>{code}</strong> "
-            "Code expires in 15 minutes."
-        ]
-        yag.send(to=email, subject="Your Email Verification Code", contents=contents)
+        contents = f"""
+      <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verification Code</title>
+</head>
+<body style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f5f7fa; color: #333333; margin: 0; padding: 0; line-height: 1.6;">
+
+<div style="max-width: 600px; margin: 20px auto; padding: 0; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); overflow: hidden;">
+    <div style="background-color: #4F46E5; padding: 30px 20px; text-align: center; color: white;">
+        <h1 style="font-size: 24px; font-weight: 600; margin: 0; letter-spacing: 0.5px;">Your Verification Code</h1>
+    </div>
+    
+    <div style="padding: 30px;">
+        <p style="margin-bottom: 20px; font-size: 16px; color: #4a5568;">Hello,</p>
+        
+        <p style="margin-bottom: 20px; font-size: 16px; color: #4a5568;">Thank you for joining <span style="color: #4F46E5; font-weight: 600;">Too Fast For you</span>! To complete your registration, please use the following verification code:</p>
+        
+        <div style="background-color: #f8f9fc; border-left: 4px solid #4F46E5; padding: 15px; margin: 25px 0; text-align: center; font-size: 24px; font-weight: 700; color: #1a237e; letter-spacing: 2px;">
+            {code}
+        </div>
+        
+        <p style="margin-bottom: 20px; font-size: 16px; color: #4a5568;">For security reasons, this code will expire in <strong>15 minutes</strong>. Please do not share this code with anyone.</p>
+        
+        <p style="margin-bottom: 20px; font-size: 16px; color: #4a5568;">If you didn't request this code, you can safely ignore this email or contact our support team if you have any concerns.</p>
+    </div>
+    
+    <div style="padding: 20px; text-align: center; font-size: 14px; color: #718096; background-color: #f8f9fc; border-top: 1px solid #e2e8f0;">
+        <p style="margin: 5px 0;">Best regards,</p>
+        <p style="margin: 5px 0;">The <span style="color: #4F46E5; font-weight: 600;">Too Fast For you</span> Team</p>
+        <p style="margin: 15px 0 0 0; font-size: 12px;">
+            © 2025 2f4y. All rights reserved.
+        </p>
+    </div>
+</div>
+
+</body>
+</html>
+        """
+
+        yag.send(to=email, subject="Email Verification Code", contents=contents)
         return True
     except Exception as e:
         print(f"Error sending email: {e}")
@@ -108,7 +145,7 @@ class LoginForm(FlaskForm):
 
 class ResetPasswordRequestForm(FlaskForm):
     email = StringField(validators=[InputRequired(), Email()], render_kw={"placeholder": "Email"})
-    submit = SubmitField("Request Password Reset")
+    submit = SubmitField("Request code")
 
 class ResetCodeForm(FlaskForm):
     code = StringField(validators=[InputRequired(), Length(min=6, max=6)], render_kw={"placeholder": "Reset Code"})

@@ -1,22 +1,33 @@
 {% extends "base.html" %}
 
-{% block title %}Verify Code{% endblock %}
-
 {% block content %}
-<h2>Enter Verification Code</h2>
-<p>We sent a 6-digit code to {{ session['email'] }}</p>
-<form method="POST" action="{{ url_for('verify_code') }}">
-    {{ form.hidden_tag() }}
-    <div class="mb-3">
-        {{ form.code(class="form-control", placeholder="Verification Code") }}
-        {% if form.code.errors %}
-            <div class="text-danger">
-                {% for error in form.code.errors %}
-                    <small>{{ error }}</small><br>
-                {% endfor %}
+<div class="auth-container">
+    <div class="auth-card">
+
+        <h2 style="text-align:center; color:white; margin-bottom: 20px;">Enter Verification Code</h2>
+        <p style="text-align:center; color: rgba(255,255,255,0.8); margin-bottom: 30px;">
+            We sent a 6-digit code to <strong>{{ session['email'] }}</strong>
+        </p>
+
+        <form method="POST" action="{{ url_for('verify_code') }}" class="auth-form">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                {{ form.code(class="form-input", placeholder="Verification Code") }}
+                
+                {% if form.code.errors %}
+                    <div class="error-message">
+                        {% for error in form.code.errors %}
+                            <span class="error-message">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
             </div>
-        {% endif %}
+
+            <button type="submit" class="auth-button">
+                {{ form.submit.label }}
+            </button>
+        </form>
     </div>
-    <button type="submit" class="btn btn-primary">{{ form.submit.label }}</button>
-</form>
+</div>
 {% endblock %}

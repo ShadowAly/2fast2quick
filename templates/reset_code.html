@@ -1,19 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Enter the Reset Code</h2>
-<form method="POST">
-    {{ form.hidden_tag() }}
-    <div>
-        {{ form.code.label }}
-        {{ form.code(class="form-control") }}
-    </div>
-    <br>
-    <div>
-        {{ form.submit(class="btn btn-primary") }}
-    </div>
-</form>
+<div class="auth-container">
+    <div class="auth-card">
 
+        <form method="POST" action="{{ url_for('reset_code') }}" class="auth-form">
+            {{ form.hidden_tag() }}
 
-<a href="{{ url_for('reset_password_request') }}">Resend Code</a>
+            <div class="form-group">
+                {{ form.code(class="form-input", placeholder="Reset Code") }}
+                
+                {% if form.code.errors %}
+                    <div class="error-message">
+                        {% for error in form.code.errors %}
+                            <span class="error-message">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="auth-button">
+                {{ form.submit.label }}
+            </button>
+        </form>
+    </div>
+</div>
 {% endblock %}

@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
 
 {% block content %}
     <div class="home-container">
@@ -32,10 +31,10 @@
             </ul>
         </p>
         <p class="home-description">
-            But we don’t stop there! Our platform is continuously growing, with new servers and features being added regularly. We’re dedicated to expanding our library of supported games, ensuring that we bring back your favorite titles—both well-known and hidden gems.
+            But we don't stop there! Our platform is continuously growing, with new servers and features being added regularly. We're dedicated to expanding our library of supported games, ensuring that we bring back your favorite titles—both well-known and hidden gems.
         </p>
         <p class="home-description">
-            We believe in keeping things simple, but powerful. You won’t need to jump through hoops or navigate complicated menus to start playing. With our easy-to-use platform, you can jump right into your favorite game and begin playing within minutes.
+            We believe in keeping things simple, but powerful. You won't need to jump through hoops or navigate complicated menus to start playing. With our easy-to-use platform, you can jump right into your favorite game and begin playing within minutes.
         </p>
         <p class="home-description">
             <strong>Join us today!</strong> We invite you to become part of our growing community. Whether you're here for some nostalgic fun or want to challenge others in intense online battles, <strong>Too Fast Four You</strong> has something for every type of gamer.
@@ -49,7 +48,15 @@
         </div>
     </div>
 
-    <!-- Footer -->
+    
+    <div class="logo-team-section">
+        <img src="{{ url_for('static', filename='logo.svg') }}" 
+            alt="Too Fast Four You Logo" 
+            class="logo-img">
+        <p class="team-credit">The Too Fast For You Team</p>
+    </div>
+
+
     <footer class="footer mt-5 text-center">
         <p>&copy; 2025 <span class="highlight">2F4Y</span>. All Rights Reserved.</p>
     </footer>

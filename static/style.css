@@ -1,4 +1,3 @@
-/* General Body Styling */
 body {
     font-family: 'Arial', sans-serif;
     margin: 0;
@@ -13,90 +12,113 @@ body {
     background-size: 100% 100%;
     background-position: center;
     height: 100vh;
-    color: #fff; /* White text color */
+    color: #fff;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;  /* Align content at the top */
-    align-items: center;          /* Horizontally center all content */
+    justify-content: flex-start;
+    align-items: center;
     line-height: 1.6;
 }
 
-/* Positioning Sign Up and Login Buttons */
+/* Updated Sign Up and Login Buttons */
 .home-buttons {
     position: absolute;
     top: 20px;
     right: 20px;
     z-index: 100;
+    display: flex;
+    gap: 15px;
 }
 
 .home-buttons a {
     text-decoration: none;
-    color: #fff; /* Ensure white text color */
+    color: #fff;
     font-size: 1.1rem;
-    padding: 12px 25px;
-    border-radius: 5px;
-    margin: 10px;
-    background-color: rgba(59, 130, 246, 0.7); /* Blue with transparency */
-    border: 2px solid #1e40af; /* Blue border */
-    transition: all 0.3s ease;
+    padding: 12px 30px;
+    border-radius: 30px;
+    margin: 0;
     font-weight: bold;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
 }
 
+/* Sign Up Button - Blue Gradient */
+.home-buttons a:first-child {
+    background: linear-gradient(to right, #1e40af, #3b82f6);
+}
+
+/* Login Button - Improved Red Gradient */
+.home-buttons a:last-child {
+    background: linear-gradient(to right, #c62828, #ef5350); /* More vibrant red */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Hover Effects */
 .home-buttons a:hover {
-    background-color: rgba(59, 130, 246, 1); /* Fully blue background on hover */
-    border-color: #ff9800; /* Orange border on hover */
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
-/* Home Page */
+.home-buttons a:first-child:hover {
+    background: linear-gradient(to right, #3b82f6, #1e40af);
+}
+
+.home-buttons a:last-child:hover {
+    background: linear-gradient(to right, #ef5350, #c62828); /* Reversed for hover */
+}
+
+/* Active/Pressed Effect */
+.home-buttons a:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Rest of your existing CSS remains unchanged */
 .home-container {
-    text-align: center;  /* Center text */
+    text-align: center;
     padding: 20px;
     max-width: 800px;
     width: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Ensure content is at the top */
-    align-items: center;     /* Horizontally center content */
+    align-items: center;
+    margin-top: 80px;
 }
 
-/* Title Styling */
 .home-title {
     font-size: 4rem;
-    background: linear-gradient(to right, #1e40af, #ef4444); /* Blue and Red gradient */
-    -webkit-background-clip: text; /* Clip the gradient to the text */
-    color: transparent; /* Make text transparent to reveal gradient */
+    background: linear-gradient(to right, #1e40af, #ef4444);
+    -webkit-background-clip: text;
+    color: transparent;
     padding: 10px;
-    text-align: center;  /* Center align title */
     margin-bottom: 20px;
-    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);  /* Soft shadow */
-    background-image: linear-gradient(to right, #1e40af, #ef4444); /* Match the highlight gradient */
-    -webkit-background-clip: text; /* Ensure gradient is clipped to text */
-    color: transparent; /* Text color will be determined by the gradient */
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);
 }
 
-/* Highlight Styling for Text */
 .highlight {
-    background: linear-gradient(to right, #1e40af, #ef4444); /* Blue and Red gradient */
+    background: linear-gradient(to right, #1e40af, #ef4444);
     -webkit-background-clip: text;
     color: transparent;
     font-weight: bold;
 }
 
-/* Home Description Styling */
 .home-description {
     font-size: 1.25rem;
-    color: #d1d1d1; /* Light grey color */
+    color: #d1d1d1;
     margin-bottom: 15px;
     line-height: 1.8;
-    text-align: justify;  /* Justified text */
-    text-justify: inter-word; /* Ensures proper spacing */
+    text-align: justify;
+    text-justify: inter-word;
 }
 
-/* Footer Styling */
 .footer {
     padding: 20px;
     width: 100%;
-    background-color: transparent; /* Remove background */
+    background-color: transparent;
     text-align: center;
     font-size: 1rem;
     color: #fff;
@@ -104,39 +126,240 @@ body {
     bottom: 0;
 }
 
-/* Footer Text Styling */
 .footer p {
     margin: 0;
 }
 
-/* Media Queries for Responsiveness */
+.logo-team-section {
+    text-align: center;
+    margin: 3rem 0;
+    padding: 2rem 0;
+    width: 100%;
+}
+
+.logo-img {
+    height: 300px;
+    width: auto;
+    max-width: 100%;
+    display: block;
+    margin: 0 auto 1.5rem auto;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+    transition: transform 0.3s ease;
+}
+
+.logo-img:hover {
+    transform: scale(1.05);
+}
+
+.team-credit {
+    text-align: center; 
+    font-size: 1.8rem; 
+    font-weight: 600;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    margin-top: 1rem;
+    background: linear-gradient(to right, #3b82f6, #ef4444);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    padding: 0.5rem 1rem;
+    display: inline-block;
+}
+
 @media (max-width: 768px) {
     .home-title {
-        font-size: 2.5rem; /* Smaller title for smaller screens */
+        font-size: 2.5rem;
     }
-
     .home-description {
-        font-size: 1rem; /* Slightly smaller text size for readability */
+        font-size: 1rem;
     }
-
+    .home-buttons {
+        gap: 10px;
+    }
     .home-buttons a {
         font-size: 1rem;
         padding: 10px 20px;
-        margin: 5px; /* Smaller margin for buttons */
+    }
+    .logo-img {
+        height: 220px;
+    }
+    .team-credit {
+        font-size: 1.5rem;
     }
 }
 
 @media (max-width: 480px) {
     .home-title {
-        font-size: 2rem; /* Even smaller title for mobile devices */
+        font-size: 2rem;
     }
-
     .home-description {
-        font-size: 0.9rem; /* Further reduce description text size */
+        font-size: 0.9rem;
     }
-
+    .home-buttons {
+        flex-direction: column;
+        gap: 8px;
+        right: 10px;
+        top: 10px;
+    }
     .home-buttons a {
-        font-size: 1rem;
+        font-size: 0.9rem;
         padding: 8px 15px;
     }
+    .logo-img {
+        height: 180px;
+    }
+    .team-credit {
+        font-size: 1.3rem;
+    }
+}
+
+/* auth.css */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    width: 100%; /* Ensure it takes full width */
+    max-width: 1200px; /* Set a maximum width */
+    margin: 0 auto; /* Center the container horizontally */
+}
+
+.auth-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 60px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: fadeIn 0.5s ease-out;
+}
+
+.auth-logo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.auth-logo img {
+    height: 80px;
+    width: auto;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-input {
+    padding: 15px 20px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.form-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+
+.auth-button {
+    padding: 15px;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(to right, #3b82f6, #1e40af);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.auth-button:hover {
+    background: linear-gradient(to right, #1e40af, #3b82f6);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.auth-button:active {
+    transform: translateY(0);
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 20px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 15px;
+}
+
+.auth-link {
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.auth-link:hover {
+    color: #3b82f6;
+    text-decoration: underline;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .auth-card {
+        padding: 30px 20px;
+    }
+    
+    .auth-logo img {
+        height: 60px;
+    }
+    
+    .form-input,
+    .auth-button {
+        padding: 12px 15px;
+    }
+} 
+
+.error-message {
+    color: #ff6b6b;
+    font-size: 14px;
+    margin-top: 5px;
+    background: rgba(255, 0, 0, 0.1);
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 107, 107, 0.4);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.error-message span {
+    display: block;
 }
