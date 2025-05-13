@@ -1,26 +1,28 @@
-from flask import Flask, render_template, url_for, redirect, flash, session
+import os
+from datetime import datetime, timedelta
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, SelectField
 from wtforms.validators import InputRequired, Length, ValidationError, Email, EqualTo
 from flask_bcrypt import Bcrypt
 from tinydb import TinyDB, Query
-import os
-from dotenv import load_dotenv
 import yagmail
 import random
 import string
-from datetime import datetime, timedelta
-
+from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
+
 db = TinyDB("user.json")
 users_table = db.table("users")
 verification_codes_table = db.table("verification_codes")
 password_reset_codes_table = db.table("password_reset_codes")
+games_table = db.table("games")
+servers_table = db.table("servers")
 
 bcrypt = Bcrypt(app)
 yag = yagmail.SMTP(user=os.getenv("EMAIL_USERNAME"), password=os.getenv("EMAIL_PASSWORD"))
@@ -319,6 +321,183 @@ def dashboard():
 def logout():
     logout_user()
     return redirect(url_for("home"))
+
+@app.route("/games", methods=["GET"])
+@login_required
+def games():
+    all_games = games_table.all()
+    return render_template("games.html", games=all_games)
+
+@app.route("/games/<game_id>", methods=["GET"])
+@login_required
+def game_servers(game_id):
+    game = games_table.get(doc_id=int(game_id))
+    if not game:
+        flash("Game not found.", "danger")
+        return redirect(url_for("games"))
+
+    search_query = request.args.get("search", "").strip().lower()
+    region_filter = request.args.get("region", "").strip()
+
+    all_regions = ["North America", "Europe", "Asia", "Oceania", "South America", "Africa"]
+    all_servers = servers_table.search(Query().game_id == int(game_id))
+
+    filtered_servers = []
+    for server in all_servers:
+        matches_search = (
+            search_query in server.get("name", "").lower()
+            or search_query in server.get("description", "").lower()
+            or search_query in server.get("created_by", "").lower()
+        ) if search_query else True
+
+        matches_region = (server.get("region") == region_filter) if region_filter else True
+
+        if matches_search and matches_region:
+            filtered_servers.append(server)
+
+    return render_template(
+        "servers.html",
+        game=game,
+        servers=filtered_servers,
+        regions=all_regions,
+        selected_region=region_filter,
+        search_query=search_query
+    )
+
+
+@app.route("/games/<game_id>/add-server", methods=["GET", "POST"])
+@login_required
+def add_server(game_id):
+    game = games_table.get(doc_id=int(game_id))
+    if not game:
+        flash("Game not found.", "danger")
+        return redirect(url_for("games"))
+
+    if request.method == "POST":
+        name = request.form.get("name")
+        region = request.form.get("region")
+        description = request.form.get("description", "")
+        max_players = request.form.get("max_players", "")
+        ip = request.form.get("ip")
+
+        if not name or not region or not ip:
+            flash("Name, region, and IP are required!", "danger")
+        else:
+            try:
+                max_players = int(max_players) if max_players else None
+            except ValueError:
+                flash("Max players must be a number!", "danger")
+                max_players = None
+
+            if max_players is not None:
+                servers_table.insert({
+                    "game_id": int(game_id),
+                    "name": name,
+                    "region": region,
+                    "description": description,
+                    "max_players": max_players,
+                    "ip": ip,
+                    "created_by": current_user.username,
+                    "created_at": datetime.now().isoformat()
+                })
+                flash("Server added successfully.", "success")
+                return redirect(url_for("game_servers", game_id=game_id))
+            else:
+                flash("Invalid number for max players.", "danger")
+
+    regions = ["North America", "Europe", "Asia", "Oceania", "South America", "Africa"]
+    max_players_list = [5, 10, 15, 20, 25, 30]
+    return render_template("add_server.html", game=game, regions=regions, max_players_list=max_players_list)
+
+
+@app.route("/games/<game_id>/server/<server_id>", methods=["GET"])
+@login_required
+def server_details(game_id, server_id):
+    game = games_table.get(doc_id=int(game_id))
+    if not game:
+        flash("Game not found.", "danger")
+        return redirect(url_for("games"))
+
+    server = servers_table.get(doc_id=int(server_id))
+    if not server:
+        flash("Server not found.", "danger")
+        return redirect(url_for("game_servers", game_id=game_id))
+
+    return render_template("server_details.html", server=server)
+
+
+@app.route("/admin/add-game", methods=["GET", "POST"])
+@login_required
+def add_game():
+    if current_user.username != "Admin":
+        return redirect(url_for("dashboard"))
+
+    if request.method == "POST":
+        name = request.form.get("name")
+        about_html = request.form.get("about_html")
+
+        if name and about_html:
+            games_table.insert({
+                "name": name,
+                "about_html": about_html
+            })
+            flash("Game added successfully.", "success")
+            return redirect(url_for("games"))
+        else:
+            flash("Both name and HTML filename are required!", "danger")
+
+    return render_template("add_game.html")
+
+
+@app.route("/games/<game_id>/server/<server_id>/delete", methods=["POST"])
+@login_required
+def delete_server(game_id, server_id):
+    game = games_table.get(doc_id=int(game_id))
+    if not game:
+        flash("Game not found.", "danger")
+        return redirect(url_for("games"))
+
+    server = servers_table.get(doc_id=int(server_id))
+    if not server:
+        flash("Server not found.", "danger")
+    elif current_user.username == "Admin" or server.get("created_by") == current_user.username:
+        try:
+            servers_table.remove(doc_ids=[int(server_id)])
+            flash("Server deleted successfully.", "success")
+        except Exception:
+            flash("Error deleting server.", "danger")
+    else:
+        flash("You do not have permission to delete this server.", "danger")
+
+    return redirect(url_for("game_servers", game_id=game_id))
+
+
+@app.route("/admin/delete-all-servers", methods=["POST"])
+@login_required
+def delete_all_servers():
+    if current_user.username != "Admin":
+        return redirect(url_for("dashboard"))
+
+    servers_table.truncate()
+    flash("All servers have been deleted.", "success")
+    return redirect(url_for("games"))
+
+
+@app.route("/admin/delete-game/<game_id>", methods=["POST"])
+@login_required
+def delete_game(game_id):
+    if current_user.username != "Admin":
+        return redirect(url_for("games"))
+
+    game = games_table.get(doc_id=int(game_id))
+    if not game:
+        flash("Game not found.", "danger")
+        return redirect(url_for("games"))
+
+    games_table.remove(doc_ids=[int(game_id)])
+    flash("Game deleted successfully.", "success")
+    return redirect(url_for("games"))
+
 
 if __name__ == "__main__":
     app.run(debug=True)

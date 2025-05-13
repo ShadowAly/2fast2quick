@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Add Server for {{ game.name }}</h2>
+<form method="POST">
+    <div>
+        <label for="name">Server Name</label><br>
+        <input type="text" name="name" placeholder="Server Name" required>
+    </div>
+    
+    <div>
+        <label for="region">Region</label><br>
+        <select name="region" required>
+            <option value="">Select Region</option>
+            {% for region in regions %}
+                <option value="{{ region }}">{{ region }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <label for="description">Description (Optional)</label><br>
+        <textarea name="description" placeholder="Server Description (Optional)"></textarea>
+    </div>
+
+    <div>
+        <label for="max_players">Max Players</label><br>
+        <select name="max_players" required>
+            <option value="">Select Max Players</option>
+            {% for max_players in max_players_list %}
+                <option value="{{ max_players }}">{{ max_players }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <label for="ip">IP Address</label><br>
+        <input type="text" pattern="^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$" name="ip" placeholder="255.255.255.255" required>
+    </div>
+
+    <div>
+        <button type="submit">Add Server</button>
+    </div>
+</form>
+
+<a href="{{ url_for('game_servers', game_id=game.doc_id) }}">Back to Servers</a>
+{% endblock %}
