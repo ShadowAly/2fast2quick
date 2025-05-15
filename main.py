@@ -1,3 +1,15 @@
+# ================================================================================================================================
+# Main.py
+# 
+# 
+# 
+# 
+# ================================================================================================================================
+
+
+# --------------------------------------------------------------------------------------------------------------------------------
+# Uvozi knjižence
+# --------------------------------------------------------------------------------------------------------------------------------
 import os
 from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, flash, session
@@ -11,12 +23,19 @@ import yagmail
 import random
 import string
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv() # Naloži .env datoteko
 
+
+# --------------------------------------------------------------------------------------------------------------------------------
+# Glavne spremenljivke in drugo... I guess?
+# --------------------------------------------------------------------------------------------------------------------------------
+
+# Ustvari instanco Flaska in nastavi SECRET_KEY za zaščito sej.
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 
-
+# Ustvari TinyDB database, kjer se bodo shranjevali podatki v datoteki 'user.json'.
+# Prav tako pa ustvari tudi vse tabele itd...
 db = TinyDB("user.json")
 users_table = db.table("users")
 verification_codes_table = db.table("verification_codes")
@@ -24,13 +43,21 @@ password_reset_codes_table = db.table("password_reset_codes")
 games_table = db.table("games")
 servers_table = db.table("servers")
 
+# Bcrypt za enkripcijo/šifriranje gesel in yagmail za pošiljanje e-pošte do uporabnika.
 bcrypt = Bcrypt(app)
 yag = yagmail.SMTP(user=os.getenv("EMAIL_USERNAME"), password=os.getenv("EMAIL_PASSWORD"))
 
+# Ustvari sistem za user login (flask login).
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "email"
 
+
+# --------------------------------------------------------------------------------------------------------------------------------
+# K O D A ( ͡° ͜ʖ ͡°)
+# --------------------------------------------------------------------------------------------------------------------------------
+
+# Definiraj user class za flask login.
 class UserClass(UserMixin):
     def __init__(self, user_id, username, email, password, gender, verified=False):
         self.id = user_id
@@ -40,6 +67,8 @@ class UserClass(UserMixin):
         self.gender = gender
         self.verified = verified
 
+
+# Funkcija za nalaganje uporabnika iz ID-ja.
 @login_manager.user_loader
 def load_user(user_id):
     user_data = users_table.get(doc_id=int(user_id))
@@ -49,9 +78,13 @@ def load_user(user_id):
                          user_data["gender"], user_data.get("verified", False))
     return None
 
+
+# Funkcija za generiranje random kode za potrditev. To kodo bomo nato poslali uporabniku na email :D
 def generate_verification_code():
     return "".join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
+
+# Pošlji verification email
 def send_verification_email(email, code):
     try:
         contents = f"""
@@ -102,6 +135,7 @@ def send_verification_email(email, code):
         print(f"Error sending email: {e}")
         return False
 
+# Pošlji generirano kodo prek emaila :D
 def send_password_reset_code(email, code):
     try:
         contents = [
@@ -115,19 +149,23 @@ def send_password_reset_code(email, code):
         print(f"Error sending email: {e}")
         return False
 
+# Obrazec za vnos email-a pri ustvarjanju računa.
 class EmailVerificationForm(FlaskForm):
     email = StringField(validators=[InputRequired(), Email()], render_kw={"placeholder": "Email"})
     submit = SubmitField("Continue")
 
+    # Čekirej če je email veljaven.
     def validate_email(self, email):
         User = Query()
         if users_table.contains(User.email == email.data):
             raise ValidationError("Email already used")
 
+# Obrazec za vnos verifikacijske kode.
 class VerificationCodeForm(FlaskForm):
     code = StringField(validators=[InputRequired(), Length(min=6, max=6)], render_kw={"placeholder": "Verification Code"})
     submit = SubmitField("Verify")
 
+# Obrazec za registracijo uporabnika.
 class SignupForm(FlaskForm):
     username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
     password = PasswordField(validators=[InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Password"})
@@ -135,46 +173,56 @@ class SignupForm(FlaskForm):
     gender = SelectField(choices=[('male', 'Male'), ('female', 'Female')], validators=[InputRequired()])
     submit = SubmitField("Signup")
 
+    # Čekirej, če je uporabniško ime že zasedeno.
     def validate_username(self, username):
         User = Query()
         if users_table.contains(User.username == username.data):
             raise ValidationError("Username already taken")
 
+
+# Obrazec za prijavo uporabnika.
 class LoginForm(FlaskForm):
     username_or_email = StringField(validators=[InputRequired()], render_kw={"placeholder": "Username or Email"})
     password = PasswordField(validators=[InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Password"})
     submit = SubmitField("Login")
 
+# Obrazec za spremembo gesla.
 class ResetPasswordRequestForm(FlaskForm):
     email = StringField(validators=[InputRequired(), Email()], render_kw={"placeholder": "Email"})
     submit = SubmitField("Request code")
 
+# Obrazec za vnos varnostne kode za spremembo gesla.
 class ResetCodeForm(FlaskForm):
     code = StringField(validators=[InputRequired(), Length(min=6, max=6)], render_kw={"placeholder": "Reset Code"})
     submit = SubmitField("Verify Code")
 
+# Obrazec za vnos novega gesla. Jz vem da ga bom pozabu k sm knedl...
 class NewPasswordForm(FlaskForm):
     password = PasswordField(validators=[InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "New Password"})
     confirm_password = PasswordField(validators=[InputRequired(), EqualTo('password', message="Passwords must match")], render_kw={"placeholder": "Confirm New Password"})
     submit = SubmitField("Set New Password")
 
+    # Potrdi novo geslo...
     def validate_password(self, password):
         User = Query()
         user_data = users_table.get(User.email == session["reset_email"])
         if user_data and bcrypt.check_password_hash(user_data["password"], password.data):
             raise ValidationError("New password must be different from current password")
 
+
+# Home page
 @app.route("/")
 def home():
     return render_template("home.html")
 
+# Vnos email-a za začetek registracije.
 @app.route("/email-verification", methods=["GET", "POST"])
 def email():
     form = EmailVerificationForm()
     if form.validate_on_submit():
         verification_code = generate_verification_code()
         if send_verification_email(form.email.data, verification_code):
-            verification_codes_table.insert({
+            verification_codes_table.insert({ # <- Shrani kodo v database, ki je veljavna 15 minut.
                 "email": form.email.data,
                 "code": verification_code,
                 "created_at": datetime.now().isoformat(),
@@ -186,6 +234,7 @@ def email():
             flash("Failed to send verification email. Please try again.")
     return render_template("email.html", form=form)
 
+# Preveri potrditveno kodo.
 @app.route("/verify-code", methods=["GET", "POST"])
 def verify_code():
     if "email" not in session:
@@ -205,6 +254,7 @@ def verify_code():
             flash("Invalid verification code. Please try again.")
     return render_template("verify_code.html", form=form)
 
+# Registracija novega uporabnika itd...
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if "email" not in session or not session.get("email_verified"):
@@ -219,27 +269,40 @@ def signup():
             "gender": form.gender.data,
             "verified": True
         })
+
+        # Avtomatično prijavi uporabnika po registraciji
         user = UserClass(user_id, form.username.data, session["email"], hashed_password, form.gender.data, True)
         login_user(user)
+
+        # Odstrani spremenljivke trenutne seje.
         session.pop("email", None)
         session.pop("email_verified", None)
+
+        # Odstrani porabljeno verifikacijsko kodo.
         Verification = Query()
         verification_codes_table.remove(Verification.email == user.email)
         return redirect(url_for("dashboard"))
     return render_template("signup.html", form=form)
 
+# Prijava uporabika.
 @app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
         User = Query()
+
+        # Preveri, ali je vpisan email...
         user_data = users_table.get(User.email == form.username_or_email.data)
-        if not user_data:
+        if not user_data: # ...če ni, preveri še username.
             user_data = users_table.get(User.username == form.username_or_email.data)
+
         if user_data and bcrypt.check_password_hash(user_data["password"], form.password.data):
+            # Preveri, ali je račun verified
             if not user_data.get("verified", False):
                 flash("Please verify your email first. Check your inbox.")
                 return redirect(url_for("email"))
+           
+            # Prijavi uporabnika
             user = UserClass(user_data.doc_id, user_data["username"], user_data["email"], user_data["password"], user_data["gender"], user_data.get("verified", False))
             login_user(user)
             return redirect(url_for("dashboard"))
@@ -252,6 +315,8 @@ def reset_password_request():
     if form.validate_on_submit():
         User = Query()
         user_data = users_table.get(User.email == form.email.data)
+
+        # Ustvari kodo za resetiranje gesla.
         if user_data:
             reset_code = generate_verification_code()
             password_reset_codes_table.insert({
@@ -260,6 +325,8 @@ def reset_password_request():
                 "created_at": datetime.now().isoformat(),
                 "expires_at": (datetime.now() + timedelta(minutes=15)).isoformat()
             })
+
+            # Pošlji email z reset kodo
             if send_password_reset_code(form.email.data, reset_code):
                 session["reset_email"] = form.email.data
                 flash("Check your email for the password reset code")
@@ -271,6 +338,7 @@ def reset_password_request():
             return redirect(url_for("login"))
     return render_template("reset_password_request.html", form=form)
 
+# Reset code stuff....
 @app.route("/reset-password-code", methods=["GET", "POST"])
 def reset_code():
     if "reset_email" not in session:
@@ -279,6 +347,8 @@ def reset_code():
     if form.validate_on_submit():
         ResetCode = Query()
         code_record = password_reset_codes_table.get((ResetCode.email == session["reset_email"]) & (ResetCode.code == form.code.data.upper()))
+
+        # Preveri, če je koda še veljavna
         if code_record:
             expires_at = datetime.fromisoformat(code_record["expires_at"])
             if datetime.now() < expires_at:
@@ -299,6 +369,7 @@ def set_new_password():
         User = Query()
         user_data = users_table.get(User.email == session["reset_email"])
         if user_data:
+            # Posodobi geslo z novim.
             hashed_password = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
             users_table.update({"password": hashed_password}, doc_ids=[user_data.doc_id])
             ResetCode = Query()
