@@ -1,39 +1,63 @@
 {% extends "base.html" %}
 
+{% block menu %}
+<nav class="navbar">
+    <div class="navbar-container">
+        <a href="{{ url_for('dashboard') }}" class="navbar-logo">
+            <img src="{{ url_for('static', filename='logo.svg') }}" alt="Too Fast Four You Logo">
+        </a>
+        <ul class="navbar-menu">
+            <li><a href="{{ url_for('dashboard') }}">Home</a></li>
+            <li><a href="{{ url_for('games') }}">Game Servers</a></li>
+            <li><a href="{{ url_for('plans') }}">Plans</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+{% endblock %}
+
 {% block content %}
-<h2>Games</h2>
+<div class="games-container">
 
-<ul class="list-group mb-4">
-    {% for game in games %}
-        <li class="list-group-item d-flex justify-content-between align-items-start flex-column">
-            <div class="mb-2">
-                <strong>{{ game.name }}</strong>
+    <div class="games-list">
+        {% for game in games %}
+        <div class="game-card">
+            <div class="game-info">
+                <h3>{{ game.name }}</h3>
             </div>
-
-            <div>
-                <a href="{{ url_for('game_servers', game_id=game.doc_id) }}" class="btn btn-sm btn-info me-2">View Servers</a>
+           <div class="game-actions">
+                <a href="{{ url_for('game_servers', game_id=game.doc_id) }}" class="custom-btn">
+                    View Servers
+                </a>
 
                 {% if game.about_html %}
-                    <a href="{{ url_for('static', filename='info/' + game.about_html) }}" class="btn btn-sm btn-secondary me-2" target="_blank">
-                        More About This Game
-                    </a>
+                <a href="{{ url_for('static', filename='info/' + game.about_html) }}" class="custom-btn secondary-btn" target="_blank">
+                    More About This Game
+                </a>
                 {% endif %}
 
                 {% if current_user.username == 'Admin' %}
-                    <form method="POST" action="{{ url_for('delete_game', game_id=game.doc_id) }}" style="display:inline;">
-                        <button type="submit" class="btn btn-sm btn-danger"
-                                onclick="return confirm('Are you sure you want to delete this game? This will also remove all servers.')">
-                            Delete Game
-                        </button>
-                    </form>
+                <form method="POST" action="{{ url_for('delete_game', game_id=game.doc_id) }}" class="d-inline">
+                    <button type="submit" class="custom-btn danger-btn"
+                        onclick="return confirm('Are you sure you want to delete this game? This will also remove all servers.')">
+                        Delete Game
+                    </button>
+                </form>
                 {% endif %}
             </div>
-        </li>
-    {% endfor %}
-</ul>
+        </div>
+        {% endfor %}
+    </div>
 
-{% if current_user.username == 'Admin' %}
-    <a href="{{ url_for('add_game') }}" class="btn btn-primary">Add New Game</a>
-{% endif %}
-
+    {% if current_user.username == 'Admin' %}
+    <div class="add-game-btn">
+        <a href="{{ url_for('add_game') }}" class="btn btn-primary custom-btn danger-btn alig">Add New Game</a>
+    </div>
+    {% endif %}
+    <style>
+        .alig {
+            margin-right: 10em
+        }
+    </style>
+</div>
 {% endblock %}

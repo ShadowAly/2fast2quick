@@ -1,11 +1,29 @@
 {% extends "base.html" %}
 
+{% block menu %}
+<nav class="navbar">
+    <div class="navbar-container">
+        <a href="{{ url_for('dashboard') }}" class="navbar-logo">
+            <img src="{{ url_for('static', filename='logo.svg') }}" alt="Too Fast Four You Logo">
+        </a>
+        <ul class="navbar-menu">
+            <li><a href="{{ url_for('dashboard') }}">Home</a></li>
+            <li><a href="{{ url_for('games') }}">Game Servers</a></li>
+            <li><a href="{{ url_for('plans') }}">Plans</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+{% endblock %}
+
 {% block content %}
-<h2>Server Details: {{ server.name }}</h2>
-<p><strong>Region:</strong> {{ server.region }}</p>
-<p><strong>IP:</strong> {{ server.ip }}</p>
-<p><strong>Max Players:</strong> {{ server.max_players }}</p>
-<p><strong>Description:</strong> {{ server.description }}</p>
-<p><strong>Created By:</strong> {{ server.created_by }}</p>
-<p><strong>Created At:</strong> {{ server.created_at }}</p>
+<div class="server-details">
+  <h2>{{ server.name }}</h2>
+  <p><strong>Region:</strong> {{ server.region }}</p>
+  <p><strong>IP:</strong> {{ server.ip }}</p>
+  <p><strong>Max Players:</strong> {{ server.max_players }}</p>
+  <p><strong>Description:</strong> {{ server.description }}</p>
+  <p><strong>Created By:</strong> {{ server.created_by }}</p>
+  <p><strong>Created At:</strong> {{ server.created_at }}</p>
+</div>
 {% endblock %}

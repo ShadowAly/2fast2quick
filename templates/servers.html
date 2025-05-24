@@ -1,71 +1,90 @@
 {% extends "base.html" %}
 
+{% block menu %}
+<nav class="navbar">
+    <div class="navbar-container">
+        <a href="{{ url_for('dashboard') }}" class="navbar-logo">
+            <img src="{{ url_for('static', filename='logo.svg') }}" alt="Too Fast Four You Logo">
+        </a>
+        <ul class="navbar-menu">
+            <li><a href="{{ url_for('dashboard') }}">Home</a></li>
+            <li><a href="{{ url_for('games') }}">Game Servers</a></li>
+            <li><a href="{{ url_for('plans') }}">Plans</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+{% endblock %}
+
 {% block content %}
-<h2>
+<h2 class="servers-header">
     {% if game.logo %}
-        <img src="{{ url_for('static', filename='uploads/' + game.logo) }}" alt="Logo" style="max-height: 40px; margin-right: 10px;">
+        <img src="{{ url_for('static', filename='uploads/' + game.logo) }}" alt="Logo" class="game-logo">
     {% endif %}
-    {{ game.name }} - Servers
+    {{ game.name }} servers
 </h2>
 
-<form method="GET" class="mb-4">
-    <div class="form-group">
-        <input type="text" name="search" placeholder="Search by Name or Creator" value="{{ request.args.get('search', '') }}" class="form-control" style="width: 300px; display: inline-block;">
-    </div>
-    
-    <div class="form-group">
+<form method="GET" class="filter-form">
+    <input type="text" name="search" placeholder="Search by Name or Creator" value="{{ request.args.get('search', '') }}" class="search-input">
+
+    <div class="region-filter">
         <p><strong>Filter by Region:</strong></p>
         {% for region in regions %}
-            <label style="margin-right: 10px;">
+            <label class="region-label">
                 <input type="radio" name="region" value="{{ region }}" {% if region == selected_region %}checked{% endif %}>
                 {{ region }}
             </label>
         {% endfor %}
-        <label>
+        <label class="region-label">
             <input type="radio" name="region" value="" {% if not selected_region %}checked{% endif %}>
             All
         </label>
     </div>
 
-    <button type="submit" class="btn btn-primary">Search</button>
+    <button type="submit" class="btn btn-primary search-btn">Search</button>
 </form>
+<div class="add-server-section">
+    {% if current_user.can_create_server() %}
+        <a href="{{ url_for('add_server', game_id=game.doc_id) }}" class="btn btn-primary add-server-btn">Add Server</a>
+    {% elif current_user.plan == 'free' %}
+        <a href="{{ url_for('plans') }}" class="btn btn-success upgrade-btn">Upgrade to Create Servers</a>
+    {% else %}
+        <button class="btn btn-secondary server-limit-btn" disabled>Server Limit Reached</button>
+    {% endif %}
+</div>
 
 <hr>
 
 {% if not servers %}
-    <p>No servers found.</p>
+    <p class="no-servers-msg">No servers found.</p>
 {% else %}
-    <ul class="list-group">
+    <ul class="servers-list">
         {% for server in servers %}
-            <li class="list-group-item" style="margin-bottom: 15px;">
-                <strong>{{ server.name }}</strong> ({{ server.region }}) - IP: {{ server.ip }}
-                <button onclick="copyIP('{{ server.ip }}')" class="btn btn-sm btn-info ml-2">Copy IP</button><br>
-                Created by: {{ server.created_by }} - Max Players: {{ server.max_players }}<br>
-                <a href="{{ url_for('server_details', game_id=game.doc_id, server_id=server.doc_id) }}" class="btn btn-link">View Details</a>
+            <li class="server-item">
+                <div class="server-main-info">
+                    <strong class="server-name">{{ server.name }}</strong> 
+                    <span class="server-region">{{ server.region }}</span> - 
+                    <span class="server-ip">IP: {{ server.ip }}</span>
+                    <button onclick="copyIP('{{ server.ip }}')" class="btn btn-info btn-copy-ip">Copy IP</button>
+                </div>
+                <div class="server-sub-info">
+                    Created by: {{ server.created_by }} - Max Players: {{ server.max_players }}
+                </div>
+                <div class="server-actions">
+                    <a href="{{ url_for('server_details', game_id=game.doc_id, server_id=server.doc_id) }}" class="btn-link view-details-btn">View Details</a>
 
-                {% if current_user.username == 'Admin' or server.created_by == current_user.username %}
-                    <form method="POST" action="{{ url_for('delete_server', game_id=game.doc_id, server_id=server.doc_id) }}" style="display:inline;">
-                        <button type="submit" class="btn btn-danger">
-                            {% if current_user.username == 'Admin' %}
-                                Delete Server
-                            {% else %}
-                                Delete Server
-                            {% endif %}
-                        </button>
-                    </form>
-                {% endif %}
+                    {% if current_user.username == 'Admin' or server.created_by == current_user.username %}
+                        <form method="POST" action="{{ url_for('delete_server', game_id=game.doc_id, server_id=server.doc_id) }}" class="delete-server-form">
+                            <button type="submit" class="btn btn-danger btn-delete-server">Delete Server</button>
+                        </form>
+                    {% endif %}
+                </div>
             </li>
         {% endfor %}
     </ul>
 {% endif %}
 
-{% if current_user.can_create_server() %}
-    <a href="{{ url_for('add_server', game_id=game.doc_id) }}" class="btn btn-primary">Add Server</a>
-{% elif current_user.plan == 'free' %}
-    <a href="{{ url_for('plans') }}" class="btn btn-success">Upgrade to Create Servers</a>
-{% else %}
-    <button class="btn btn-secondary" disabled>Server Limit Reached</button>
-{% endif %}
+
 
 <script>
     function copyIP(ip) {
@@ -76,4 +95,5 @@
         });
     }
 </script>
+
 {% endblock %}

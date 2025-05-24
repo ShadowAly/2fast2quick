@@ -3,7 +3,7 @@
 {% block content %}
 <div class="auth-container">
     <div class="auth-card">
-
+        <h2 class="text-center mb-4">Enter reset code</h2>
         <form method="POST" action="{{ url_for('reset_code') }}" class="auth-form">
             {{ form.hidden_tag() }}
 

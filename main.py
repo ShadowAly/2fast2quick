@@ -114,46 +114,55 @@ def generate_verification_code():
 def send_verification_email(email, code):
     try:
         contents = f"""
-      <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Verification Code</title>
-</head>
-<body style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f5f7fa; color: #333333; margin: 0; padding: 0; line-height: 1.6;">
+    </head>
+    <body style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f5f7fa; color: #333333; margin: 0; padding: 0; line-height: 1.6;">
 
-<div style="max-width: 600px; margin: 20px auto; padding: 0; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); overflow: hidden;">
-    <div style="background-color: #4F46E5; padding: 30px 20px; text-align: center; color: white;">
+    <div style="max-width: 600px; margin: 20px auto; padding: 0; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); overflow: hidden;">
+
+        <div style="background-color: #3b82f6; padding: 30px 20px; text-align: center; color: #ffffff;">
         <h1 style="font-size: 24px; font-weight: 600; margin: 0; letter-spacing: 0.5px;">Your Verification Code</h1>
-    </div>
-    
-    <div style="padding: 30px;">
+        </div>
+
+        <div style="padding: 30px;">
         <p style="margin-bottom: 20px; font-size: 16px; color: #4a5568;">Hello,</p>
-        
-        <p style="margin-bottom: 20px; font-size: 16px; color: #4a5568;">Thank you for joining <span style="color: #4F46E5; font-weight: 600;">Too Fast For you</span>! To complete your registration, please use the following verification code:</p>
-        
-        <div style="background-color: #f8f9fc; border-left: 4px solid #4F46E5; padding: 15px; margin: 25px 0; text-align: center; font-size: 24px; font-weight: 700; color: #1a237e; letter-spacing: 2px;">
+
+        <p style="margin-bottom: 20px; font-size: 16px; color: #4a5568;">
+            Thank you for joining
+            <span style="color: #3b82f6; font-weight: 600;">Too Fast For you</span>! To complete your registration, please use the following verification code:
+        </p>
+
+        <div style="background-color: #f8f9fc; border-left: 4px solid #ef4444; padding: 15px; margin: 25px 0; text-align: center; font-size: 24px; font-weight: 700; color: #ef4444; letter-spacing: 2px;">
             {code}
         </div>
-        
-        <p style="margin-bottom: 20px; font-size: 16px; color: #4a5568;">For security reasons, this code will expire in <strong>15 minutes</strong>. Please do not share this code with anyone.</p>
-        
-        <p style="margin-bottom: 20px; font-size: 16px; color: #4a5568;">If you didn't request this code, you can safely ignore this email or contact our support team if you have any concerns.</p>
-    </div>
-    
-    <div style="padding: 20px; text-align: center; font-size: 14px; color: #718096; background-color: #f8f9fc; border-top: 1px solid #e2e8f0;">
-        <p style="margin: 5px 0;">Best regards,</p>
-        <p style="margin: 5px 0;">The <span style="color: #4F46E5; font-weight: 600;">Too Fast For you</span> Team</p>
-        <p style="margin: 15px 0 0 0; font-size: 12px;">
-            © 2025 2f4y. All rights reserved.
-        </p>
-    </div>
-</div>
 
-</body>
-</html>
-        """
+        <p style="margin-bottom: 20px; font-size: 16px; color: #4a5568;">
+            For security reasons, this code will expire in <strong>15 minutes</strong>. Please do not share this code with anyone.
+        </p>
+
+        <p style="margin-bottom: 20px; font-size: 16px; color: #4a5568;">
+            If you didn't request this code, you can safely ignore this email or contact our support team if you have any questions.
+        </p>
+        </div>
+
+        <div style="padding: 20px; text-align: center; font-size: 14px; color: #718096; background-color: #f8f9fc; border-top: 1px solid #e2e8f0;">
+        <p style="margin: 5px 0;">Best regards,</p>
+        <p style="margin: 5px 0;">The <span style="color: #3b82f6; font-weight: 600;">Too Fast For you</span> Team</p>
+        <p style="margin: 15px 0 0 0; font-size: 12px;">
+            © 2025 2F4Y. All rights reserved.
+        </p>
+        </div>
+
+    </div>
+
+    </body>
+    </html>
+    """
 
         yag.send(to=email, subject="Email Verification Code", contents=contents)
         return True
@@ -164,11 +173,65 @@ def send_verification_email(email, code):
 # Pošlji generirano kodo prek emaila :D
 def send_password_reset_code(email, code):
     try:
-        contents = [
-            "Password Reset Request "
-            f"Your password reset code is: <strong>{code}</strong> "
-            "Code expires in 15 minutes."
-        ]
+        contents = f"""
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Password Reset Request</title>
+    </head>
+    <body style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f5f7fa; color: #333333; margin: 0; padding: 0; line-height: 1.6;">
+
+    <div style="max-width: 600px; margin: 20px auto; padding: 0; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); overflow: hidden;">
+
+        <div style="background-color: #3b82f6; padding: 30px 20px; text-align: center; color: #ffffff;">
+        <h1 style="font-size: 24px; font-weight: 600; margin: 0; letter-spacing: 0.5px;">Password Reset Request</h1>
+        </div>
+
+        <div style="padding: 30px;">
+        <p style="margin-bottom: 20px; font-size: 16px; color: #4a5568;">Hello,</p>
+
+        <p style="margin-bottom: 20px; font-size: 16px; color: #4a5568;">
+            We received a request to reset the password for your account associated with <span style="color: #3b82f6; font-weight: 600;">Too Fast For you</span>.
+        </p>
+
+        <p style="margin-bottom: 20px; font-size: 16px; color: #4a5568;">
+            Your password reset code is:
+        </p>
+
+        <div style="background-color: #f8f9fc; border-left: 4px solid #ef4444; padding: 15px; margin: 25px 0; text-align: center; font-size: 24px; font-weight: 700; color: #ef4444; letter-spacing: 2px;">
+            {code}
+        </div>
+
+        <p style="margin-bottom: 20px; font-size: 16px; color: #4a5568;">
+            Please use this code to reset your password. <strong>The code expires in 15 minutes</strong> for your security.
+        </p>
+
+        <p style="margin-bottom: 20px; font-size: 16px; color: #4a5568;">
+            If you did not request a password reset, please ignore this email or contact our support team if you have any concerns.
+        </p>
+
+        <p style="margin-bottom: 20px; font-size: 16px; color: #4a5568;">
+            For your safety, do not share this code with anyone.
+        </p>
+        </div>
+
+        <div style="padding: 20px; text-align: center; font-size: 14px; color: #718096; background-color: #f8f9fc; border-top: 1px solid #e2e8f0;">
+        <p style="margin: 5px 0;">Best regards,</p>
+        <p style="margin: 5px 0;">The <span style="color: #3b82f6; font-weight: 600;">Too Fast For you</span> Team</p>
+        <p style="margin: 15px 0 0 0; font-size: 12px;">
+            © 2025 2F4Y. All rights reserved.
+        </p>
+        </div>
+
+    </div>
+
+    </body>
+    </html>
+     """
+     
         yag.send(to=email, subject="Password Reset Code", contents=contents)
         return True
     except Exception as e:
@@ -356,12 +419,12 @@ def reset_password_request():
             # Pošlji email z reset kodo
             if send_password_reset_code(form.email.data, reset_code):
                 session["reset_email"] = form.email.data
-                flash("Check your email for the password reset code")
+                flash("Check your email for the reset code")
                 return redirect(url_for("reset_code"))
             else:
-                flash("Error sending password reset code. Please try again.")
+                flash("Error sending reset code. Please try again.")
         else:
-            flash("If the email exists, you'll receive a password reset code.")
+            flash("You'll receive a reset code on email.")
             return redirect(url_for("login"))
     return render_template("reset_password_request.html", form=form)
 
@@ -488,6 +551,7 @@ def add_server(game_id):
                 max_players = None
 
             if max_players is not None:
+                d = datetime.now()
                 servers_table.insert({
                     "game_id": int(game_id),
                     "name": name,
@@ -496,7 +560,7 @@ def add_server(game_id):
                     "max_players": max_players,
                     "ip": ip,
                     "created_by": current_user.username,
-                    "created_at": datetime.now().isoformat()
+                    "created_at": d.strftime("%A" "%d" ".%m" ".%Y")
                 })
                 flash("Server added successfully.", "success")
                 return redirect(url_for("game_servers", game_id=game_id))
@@ -647,7 +711,7 @@ def payment_success():
     
     session.pop("selected_plan", None)
     
-    flash(f"Payment successful! Your plan has been upgraded to {plan_id.capitalize()}.", "success")
+    flash(f"Payment successful! Your plan has been changed to {plan_id.capitalize()}.", "success")
     return redirect(url_for("plans"))
 
 @app.route("/upgrade/<plan_id>")
@@ -669,9 +733,6 @@ def upgrade(plan_id):
     user_doc_id = int(current_user.id)
     users_table.update({"plan": plan_id}, doc_ids=[user_doc_id])
     current_user.plan = plan_id
-
-    plan_order = {"free": 0, "normal": 1, "premium": 2}
-    direction = "Upgraded" if plan_order[plan_id] > plan_order[previous_plan] else "Downgraded"
 
     flash(f"{direction} to {plan_id.capitalize()} plan!", "success")
     return redirect(url_for("plans"))

@@ -1,47 +1,69 @@
 {% extends "base.html" %}
 
+{% block menu %}
+<nav class="navbar">
+    <div class="navbar-container">
+        <a href="{{ url_for('dashboard') }}" class="navbar-logo">
+            <img src="{{ url_for('static', filename='logo.svg') }}" alt="Too Fast Four You Logo">
+        </a>
+        <ul class="navbar-menu">
+            <li><a href="{{ url_for('dashboard') }}">Home</a></li>
+            <li><a href="{{ url_for('games') }}">Game Servers</a></li>
+            <li><a href="{{ url_for('plans') }}">Plans</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+{% endblock %}
+
 {% block content %}
-<h2>Add Server for {{ game.name }}</h2>
-<form method="POST">
-    <div>
-        <label for="name">Server Name</label><br>
-        <input type="text" name="name" placeholder="Server Name" required>
-    </div>
-    
-    <div>
-        <label for="region">Region</label><br>
-        <select name="region" required>
-            <option value="">Select Region</option>
-            {% for region in regions %}
-                <option value="{{ region }}">{{ region }}</option>
-            {% endfor %}
-        </select>
-    </div>
+<div class="auth-container">
+    <div class="auth-card">
 
-    <div>
-        <label for="description">Description (Optional)</label><br>
-        <textarea name="description" placeholder="Server Description (Optional)"></textarea>
-    </div>
+        <h2 class="auth-title">Server for {{ game.name }}</h2>
+        
+        <form method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="name">Server Name</label>
+                <input type="text" name="name" placeholder="Server Name" class="form-input" required>
+            </div>
 
-    <div>
-        <label for="max_players">Max Players</label><br>
-        <select name="max_players" required>
-            <option value="">Select Max Players</option>
-            {% for max_players in max_players_list %}
-                <option value="{{ max_players }}">{{ max_players }}</option>
-            {% endfor %}
-        </select>
-    </div>
+            <div class="form-group">
+                <label for="region">Region</label>
+                <select name="region" class="form-input custom-select" required>
+                    <option value="">Select Region</option>
+                    {% for region in regions %}
+                        <option value="{{ region }}">{{ region }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-    <div>
-        <label for="ip">IP Address</label><br>
-        <input type="text" pattern="^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$" name="ip" placeholder="255.255.255.255" required>
-    </div>
+            <div class="form-group">
+                <label for="description">Description (Optional)</label>
+                <textarea name="description" class="form-input" rows="3"></textarea>
+            </div>
 
-    <div>
-        <button type="submit">Add Server</button>
-    </div>
-</form>
+            <div class="form-group">
+                <label for="max_players">Max Players</label>
+                <select name="max_players" class="form-input custom-select" required>
+                    <option value="">Select Max Players</option>
+                    {% for max_players in max_players_list %}
+                        <option value="{{ max_players }}">{{ max_players }}</option>
+                    {% endfor %}
+                </select>
+            </div>
 
-<a href="{{ url_for('game_servers', game_id=game.doc_id) }}">Back to Servers</a>
+            <div class="form-group">
+                <label for="ip">IP Address</label>
+                <input type="text" name="ip" placeholder="255.255.255.255" pattern="^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$" class="form-input" required>
+            </div>
+
+            <button type="submit" class="auth-button">Add Server</button>
+        </form>
+
+        <div class="auth-footer">
+            <a href="{{ url_for('game_servers', game_id=game.doc_id) }}" class="auth-link">Back to Servers</a>
+        </div>
+    </div>
+</div>
 {% endblock %}

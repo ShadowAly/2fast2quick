@@ -1,19 +1,39 @@
 {% extends "base.html" %}
 
+{% block menu %}
+<nav class="navbar">
+    <div class="navbar-container">
+        <a href="{{ url_for('dashboard') }}" class="navbar-logo">
+            <img src="{{ url_for('static', filename='logo.svg') }}" alt="Too Fast Four You Logo">
+        </a>
+        <ul class="navbar-menu">
+            <li><a href="{{ url_for('dashboard') }}">Home</a></li>
+            <li><a href="{{ url_for('games') }}">Game Servers</a></li>
+            <li><a href="{{ url_for('plans') }}">Plans</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+{% endblock %}
+
 {% block content %}
-<h2>Add New Game</h2>
+<div class="auth-container">
+    <div class="auth-card">
+        <h2 class="auth-title">Add New Game</h2>
 
-<form method="POST">
-    <div class="form-group">
-        <label for="name">Game Name</label>
-        <input type="text" name="name" id="name" class="form-control" required>
+        <form method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="name">Game Name</label>
+                <input type="text" name="name" id="name" class="form-control form-input" required>
+            </div>
+
+            <div class="form-group mt-3">
+                <label for="about_html">HTML File</label>
+                <input type="text" name="about_html" id="about_html" class="form-control form-input" required>
+            </div>
+
+            <button type="submit" class="auth-button mt-4">Add Game</button>
+        </form>
     </div>
-
-    <div class="form-group mt-3">
-        <label for="about_html">HTML Filename</label>
-        <input type="text" name="about_html" id="about_html" class="form-control" placeholder=".html file" required>
-    </div>
-
-    <button type="submit" class="btn btn-success mt-4">Add Game</button>
-</form>
+</div>
 {% endblock %}

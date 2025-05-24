@@ -3,12 +3,10 @@
 
 {% block content %}
     <div class="home-container">
-        <!-- Main Title -->
         <h1 class="home-title">
             Welcome to <span class="highlight">Too Fast Four You</span>!
         </h1>
 
-        <!-- Description Sections -->
         <p class="home-description">
             <strong>Too Fast Four You</strong> is a hub for gamers who love retro games. We provide game servers for a variety of nostalgic, classic games that have long been abandoned or no longer have official support. 
             Our servers are designed to bring these old-school games back to life, offering a smooth, lag-free experience with the latest technology for online play.
@@ -23,10 +21,13 @@
         </p>
         <p class="home-description">
             <strong>What do we offer?</strong>
-            <ul>
+            <ul class="justified-list">
                 <li><strong>Competitive Games:</strong> Whether you're a pro or just enjoy casual play, our servers are designed to offer lag-free experiences for competitive gaming.</li>
+                &nbsp;
                 <li><strong>Racing Games:</strong> Revive your need for speed with our racing servers. Experience classic racing games with a community of like-minded players.</li>
+                &nbsp;
                 <li><strong>Multiplayer & Co-op Games:</strong> Enjoy your favorite retro multiplayer games with friends or make new ones in a community-focused environment.</li>
+                &nbsp;
                 <li><strong>Custom Game Modes:</strong> Many of our servers offer custom game modes, designed to give you fresh gameplay in your favorite retro titles.</li>
             </ul>
         </p>
@@ -41,10 +42,9 @@
             Our community is welcoming, and our servers are ready to host your best gaming moments.
         </p>
 
-        <!-- Sign Up & Login Buttons -->
         <div class="home-buttons">
-            <a href="{{ url_for('email') }}" class="btn btn-primary me-2">Sign Up</a>
-            <a href="{{ url_for('login') }}" class="btn btn-secondary">Login</a>
+            <a href="{{ url_for('email') }}" class="home-btn-primary">Sign Up</a>
+            <a href="{{ url_for('login') }}" class="home-btn-secondary">Login</a>
         </div>
     </div>
 
@@ -56,8 +56,7 @@
         <p class="team-credit">The Too Fast For You Team</p>
     </div>
 
-
-    <footer class="footer mt-5 text-center">
+<footer class="footer mt-5 text-center">
         <p>&copy; 2025 <span class="highlight">2F4Y</span>. All Rights Reserved.</p>
-    </footer>
+</footer>
 {% endblock %}

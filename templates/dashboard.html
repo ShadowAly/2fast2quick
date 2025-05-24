@@ -1,9 +1,55 @@
 {% extends "base.html" %}
+
+{% block menu %}
+<nav class="navbar">
+    <div class="navbar-container">
+        <a href="{{ url_for('dashboard') }}" class="navbar-logo">
+            <img src="{{ url_for('static', filename='logo.svg') }}" alt="Too Fast Four You Logo">
+        </a>
+        <ul class="navbar-menu">
+            <li><a href="{{ url_for('dashboard') }}">Home</a></li>
+            <li><a href="{{ url_for('games') }}">Game Servers</a></li>
+            <li><a href="{{ url_for('plans') }}">Plans</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+{% endblock %}
 {% block content %}
-<h2>Welcome, {{ username }}!</h2>
-<div class="mt-4">
-    <a href="{{ url_for('games') }}" class="btn btn-primary">Browse Game Servers</a>
-    <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
-    <a href="{{ url_for('plans') }}" class="btn btn-danger">Plan</a>
+<div class="home-container">
+    <h2 class="welcome-large">Welcome, <span class="highlight">{{ username }}</span>!</h2>
+    
+    <p class="home-description">
+        We’re thrilled to have you here again. This dashboard is your command center — the place where all your gaming adventures begin and thrive. Whether you're here to manage your servers, review your subscription plan, or update your account settings, everything is designed to be fast, simple, and secure.
+    </p>
+    
+    <p class="home-description">
+        Here’s a quick overview of what you can do from this hub:
+    </p>
+    
+    <ul class="justified-list">
+        <li><strong>Game Servers:</strong> Instantly check the status of your servers, manage configurations, or deploy new ones effortlessly. Stay in control and ensure your gaming experience is smooth and uninterrupted.</li>
+        &nbsp;
+        <li><strong>Subscription Plans:</strong> Review your current plan details, explore upgrades, or adjust your billing preferences — all tailored to fit your gaming lifestyle.</li>
+        &nbsp;
+        <li><strong>Notifications & Updates:</strong> Stay informed with the latest announcements, maintenance schedules, and exclusive offers, so you never miss a beat.</li>
+    </ul>
+    
+    <p class="home-description">
+        <strong>Please make sure to read and follow our <span style="color:red; font-weight:bold;">community rules and guidelines</span> to keep this a fun and safe space for everyone.</strong> Violations may result in suspension or termination of your account.
+    </p>
+    
+    <p class="home-description">
+        For any questions, concerns, or support, please reach out to us at 
+        <a href="mailto:info@2f4y.com" style="color:#3b82f6; font-weight:bold;">info@2f4y.com</a>. We’re here to help!
+    </p>
+    
+    <p class="home-description" style="margin-top: 2rem; font-weight: bold;">
+        Dive in and explore your dashboard — the ultimate hub to fuel your gaming passion! And of course have fun.
+    </p>
 </div>
+
+<footer class="footer mt-5 text-center">
+        <p>&copy; 2025 <span class="highlight">2F4Y</span>. All Rights Reserved.</p>
+</footer>
 {% endblock %}

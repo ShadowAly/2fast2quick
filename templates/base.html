@@ -7,8 +7,11 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/svg+xml">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body>
+    {% block menu %}{% endblock %}
+
     <div id="left-line"></div>
     <div id="right-line"></div>
 
@@ -16,17 +19,14 @@
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show">
+                    <div class="alert alert-{{ category }} alert-dismissible fade show error-message">
                         {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
 
-        
-        {% block content %}
-        {% endblock %}
+        {% block content %}{% endblock %}
     </div>
 
 </body>

@@ -1,95 +1,104 @@
 {% extends "base.html" %}
 
+{% block menu %}
+<nav class="navbar">
+    <div class="navbar-container">
+        <a href="{{ url_for('dashboard') }}" class="navbar-logo">
+            <img src="{{ url_for('static', filename='logo.svg') }}" alt="Too Fast Four You Logo">
+        </a>
+        <ul class="navbar-menu">
+            <li><a href="{{ url_for('dashboard') }}">Home</a></li>
+            <li><a href="{{ url_for('games') }}">Game Servers</a></li>
+            <li><a href="{{ url_for('plans') }}">Plans</a></li>
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+{% endblock %}
+
 {% block content %}
-<div class="container my-5">
-    <div class="text-center mb-5">
-        <h2>Your Current Plan:
-            <span class="badge bg-{% if current_user.plan == 'free' %}secondary{% elif current_user.plan == 'normal' %}info{% else %}warning{% endif %}">
-                {{ current_user.plan|upper }}
-            </span>
-        </h2>
-        {% if current_user.plan != 'free' %}
+<div class="plan-header">
+    <h2>Your Current Plan:
+        <span class="badge bg-{% if current_user.plan == 'free' %}secondary{% elif current_user.plan == 'normal' %}info{% else %}warning{% endif %} highlight">
+            {{ current_user.plan|upper }}
+        </span>
+    </h2>
+    {% if current_user.plan != 'free' %}
         <p class="text-muted">Thank you for being a valued subscriber!</p>
-        {% endif %}
-    </div>
+    {% endif %}
+</div>
 
-    <div class="row mt-4">
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 {% if current_user.plan == 'free' %}border-primary shadow{% endif %}">
-                <div class="card-header bg-light">
-                    <h4 class="my-0 fw-normal">Free</h4>
-                </div>
-                <div class="card-body">
-                    <h1 class="card-title pricing-card-title">€0<small class="text-muted fw-light">/month</small></h1>
-                    <ul class="list-unstyled mt-3 mb-4">
-                        <li><i class="bi bi-check-circle text-success"></i> Join unlimited servers</li>
-                        <li><i class="bi bi-x-circle text-danger"></i> Cannot create servers</li>
-                        <li><i class="bi bi-x-circle text-danger"></i> Standard support</li>
-                    </ul>
-                    {% if current_user.plan == 'free' %}
-                    <button class="w-100 btn btn-lg btn-outline-primary" disabled>Current Plan</button>
-                    {% endif %}
-                </div>
-            </div>
+    <div class="plans-row">
+        <div class="plan-card {% if current_user.plan == 'free' %}highlight-plan{% endif %}">
+            <h3>Free</h3>
+            <p class="price">€0<span>/month</span></p>
+            <p class="plan-desc">
+                Perfect for casual players who want to join community servers and explore what our platform offers without any cost.
+            </p>
+            <ul>
+                <li><i class="bi bi-check-circle text-success"></i> Join unlimited servers</li>
+                <li><i class="bi bi-x-circle text-danger"></i> Cannot create servers</li>
+                <li><i class="bi bi-x-circle text-danger"></i> Standard support</li>
+            </ul>
+            {% if current_user.plan == 'free' %}
+                <button class="plan-btn current" disabled>Current Plan</button>
+            {% endif %}
         </div>
 
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 {% if current_user.plan == 'normal' %}border-primary shadow{% endif %}">
-                <div class="card-header bg-info text-white">
-                    <h4 class="my-0 fw-normal">Normal</h4>
-                </div>
-                <div class="card-body">
-                    <h1 class="card-title pricing-card-title">€9.99<small class="text-muted fw-light">/month</small></h1>
-                    <ul class="list-unstyled mt-3 mb-4">
-                        <li><i class="bi bi-check-circle text-success"></i> Create up to 3 servers</li>
-                        <li><i class="bi bi-check-circle text-success"></i> All Free features</li>
-                        <li><i class="bi bi-x-circle text-danger"></i> No priority support</li>
-                    </ul>
-                    {% if current_user.plan == 'normal' %}
-                    <button class="w-100 btn btn-lg btn-info" disabled>Current Plan</button>
-                    {% else %}
-                    <form action="{{ url_for('create_checkout_session', plan_id='normal') }}" method="POST">
-                        <button type="submit" class="w-100 btn btn-lg btn-info">
-                            {% if current_user.plan == 'free' %}Upgrade{% else %}Downgrade{% endif %} to Normal
-                        </button>
-                    </form>
-                    {% endif %}
-                </div>
-            </div>
+        <div class="plan-card {% if current_user.plan == 'normal' %}highlight-plan{% endif %}">
+            <h3>Normal</h3>
+            <p class="price">€9.99<span>/month</span></p>
+            <p class="plan-desc">
+                Ideal for gamers who want more control. Create and manage your own servers while enjoying an enhanced experience with all Free features included.
+            </p>
+            <ul>
+                <li><i class="bi bi-check-circle text-success"></i> Create up to 3 servers</li>
+                <li><i class="bi bi-check-circle text-success"></i> All Free features</li>
+                <li><i class="bi bi-x-circle text-danger"></i> No priority support</li>
+            </ul>
+            {% if current_user.plan == 'normal' %}
+                <button class="plan-btn current" disabled>Current Plan</button>
+            {% else %}
+                <form action="{{ url_for('create_checkout_session', plan_id='normal') }}" method="POST">
+                    <button type="submit" class="plan-btn upgrade-btn">Change to Normal</button>
+                </form>
+            {% endif %}
         </div>
 
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 {% if current_user.plan == 'premium' %}border-primary shadow{% endif %}">
-                <div class="card-header bg-warning">
-                    <h4 class="my-0 fw-normal">Premium</h4>
-                </div>
-                <div class="card-body">
-                    <h1 class="card-title pricing-card-title">€19.99<small class="text-muted fw-light">/month</small></h1>
-                    <ul class="list-unstyled mt-3 mb-4">
-                        <li><i class="bi bi-check-circle text-success"></i> Create up to 10 servers</li>
-                        <li><i class="bi bi-check-circle text-success"></i> All Normal features</li>
-                        <li><i class="bi bi-check-circle text-success"></i> Priority support</li>
-                        <li><i class="bi bi-check-circle text-success"></i> Featured server listings</li>
-                    </ul>
-                    {% if current_user.plan == 'premium' %}
-                    <button class="w-100 btn btn-lg btn-warning" disabled>Current Plan</button>
-                    {% else %}
-                    <form action="{{ url_for('create_checkout_session', plan_id='premium') }}" method="POST">
-                        <button type="submit" class="w-100 btn btn-lg btn-warning">Upgrade to Premium</button>
-                    </form>
-                    {% endif %}
-                </div>
-            </div>
+        <div class="plan-card {% if current_user.plan == 'premium' %}highlight-plan{% endif %}">
+            <h3>Premium</h3>
+            <p class="price">€19.99<span>/month</span></p>
+            <p class="plan-desc">
+                The ultimate experience. For dedicated creators and community leaders who want full flexibility, visibility, and VIP support.
+            </p>
+            <ul>
+                <li><i class="bi bi-check-circle text-success"></i> Create up to 10 servers</li>
+                <li><i class="bi bi-check-circle text-success"></i> All Normal features</li>
+                <li><i class="bi bi-check-circle text-success"></i> Priority support</li>
+                <li><i class="bi bi-check-circle text-success"></i> Featured server listings</li>
+                <li><i class="bi bi-check-circle text-success"></i> No ads</li>
+            </ul>
+            {% if current_user.plan == 'premium' %}
+                <button class="plan-btn current" disabled>Current Plan</button>
+            {% else %}
+                <form action="{{ url_for('create_checkout_session', plan_id='premium') }}" method="POST">
+                    <button type="submit" class="plan-btn upgrade-btn">Change to Premium</button>
+                </form>
+            {% endif %}
         </div>
     </div>
 
-    <div class="alert alert-info mt-4">
-        <h5><i class="bi bi-info-circle"></i> Plan Information</h5>
-        <ul class="mb-0">
+    <div class="plan-info">
+        <h4><i class="bi bi-info-circle"></i> Plan Information</h4>
+        <ul>
             <li>Changing plans takes effect immediately</li>
             <li>You can change or cancel your plan anytime</li>
             <li>All prices include applicable taxes</li>
         </ul>
     </div>
 </div>
+
+<footer class="footer mt-5 text-center">
+        <p>&copy; 2025 <span class="highlight">2F4Y</span>. All Rights Reserved.</p>
+</footer>
 {% endblock %}
