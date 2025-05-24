@@ -59,7 +59,13 @@
     </ul>
 {% endif %}
 
-<a href="{{ url_for('add_server', game_id=game.doc_id) }}" class="btn btn-primary mt-3">Add New Server</a>
+{% if current_user.can_create_server() %}
+    <a href="{{ url_for('add_server', game_id=game.doc_id) }}" class="btn btn-primary">Add Server</a>
+{% elif current_user.plan == 'free' %}
+    <a href="{{ url_for('plans') }}" class="btn btn-success">Upgrade to Create Servers</a>
+{% else %}
+    <button class="btn btn-secondary" disabled>Server Limit Reached</button>
+{% endif %}
 
 <script>
     function copyIP(ip) {

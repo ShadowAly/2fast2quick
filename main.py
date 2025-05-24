@@ -23,6 +23,7 @@ import yagmail
 import random
 import string
 from dotenv import load_dotenv
+import stripe
 load_dotenv() # Naloži .env datoteko
 
 
@@ -33,6 +34,13 @@ load_dotenv() # Naloži .env datoteko
 # Ustvari instanco Flaska in nastavi SECRET_KEY za zaščito sej.
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+YOUR_DOMAIN = os.getenv("DOMAIN")
+
+PRICES = {
+    "normal": os.getenv("STRIPE_NORMAL_PRICE_ID"),
+    "premium": os.getenv("STRIPE_PREMIUM_PRICE_ID")
+}
 
 # Ustvari TinyDB database, kjer se bodo shranjevali podatki v datoteki 'user.json'.
 # Prav tako pa ustvari tudi vse tabele itd...
@@ -58,14 +66,26 @@ login_manager.login_view = "email"
 # --------------------------------------------------------------------------------------------------------------------------------
 
 # Definiraj user class za flask login.
+#dodaj komentarje
 class UserClass(UserMixin):
-    def __init__(self, user_id, username, email, password, gender, verified=False):
+    def __init__(self, user_id, username, email, password, gender, verified=False, plan="free"):
         self.id = user_id
         self.username = username
         self.email = email
         self.password = password
         self.gender = gender
         self.verified = verified
+        self.plan = plan
+
+#dodaj komentarje
+    def can_create_server(self):
+        if self.username == "Admin":
+            return True
+        if self.plan == "free":
+            return False
+        user_servers = servers_table.search(Query().created_by == self.username)
+        max_servers = 3 if self.plan == "normal" else 10
+        return len(user_servers) < max_servers
 
 
 # Funkcija za nalaganje uporabnika iz ID-ja.
@@ -73,9 +93,15 @@ class UserClass(UserMixin):
 def load_user(user_id):
     user_data = users_table.get(doc_id=int(user_id))
     if user_data:
-        return UserClass(user_data.doc_id, user_data["username"],
-                         user_data["email"], user_data["password"],
-                         user_data["gender"], user_data.get("verified", False))
+        return UserClass(
+            user_data.doc_id,
+            user_data["username"],
+            user_data["email"],
+            user_data["password"],
+            user_data["gender"],
+            user_data.get("verified", False),
+            user_data.get("plan", "free")
+        )
     return None
 
 
@@ -267,7 +293,8 @@ def signup():
             "email": session["email"],
             "password": hashed_password,
             "gender": form.gender.data,
-            "verified": True
+            "verified": True,
+            "plan": "free"
         })
 
         # Avtomatično prijavi uporabnika po registraciji
@@ -569,6 +596,85 @@ def delete_game(game_id):
     flash("Game deleted successfully.", "success")
     return redirect(url_for("games"))
 
+@app.route("/plans")
+@login_required
+def plans():
+    if current_user.username == "Admin":
+        flash("Admin has unlimited access", "info")
+        return redirect(url_for("dashboard"))
+    return render_template("plans.html")
+
+@app.route("/create-checkout-session/<plan_id>", methods=["POST"])
+@login_required
+def create_checkout_session(plan_id):
+    if plan_id not in ["normal", "premium"]:
+        abort(400, description="Invalid plan")
+    
+    try:
+        session["selected_plan"] = plan_id
+        
+        checkout_session = stripe.checkout.Session.create(
+            line_items=[{
+                "price": PRICES[plan_id],
+                "quantity": 1,
+            }],
+            mode="subscription",
+            success_url=url_for("payment_success", _external=True),
+            cancel_url=url_for("plans", _external=True),
+            customer_email=current_user.email,
+            metadata={
+                "user_id": current_user.id,
+                "plan_id": plan_id
+            }
+        )
+        return redirect(checkout_session.url, code=303)
+    except Exception as e:
+        app.logger.error(f"Stripe error: {str(e)}")
+        flash("Payment processing error. Please try again.", "danger")
+        return redirect(url_for("plans"))
+
+@app.route("/payment-success")
+@login_required
+def payment_success():
+    plan_id = session.get("selected_plan")
+    
+    if not plan_id or plan_id not in ["normal", "premium"]:
+        flash("Unable to determine your selected plan. Please contact support.", "danger")
+        return redirect(url_for("plans"))
+    
+    users_table.update({"plan": plan_id}, doc_ids=[int(current_user.id)])
+    current_user.plan = plan_id
+    
+    session.pop("selected_plan", None)
+    
+    flash(f"Payment successful! Your plan has been upgraded to {plan_id.capitalize()}.", "success")
+    return redirect(url_for("plans"))
+
+@app.route("/upgrade/<plan_id>")
+@login_required
+def upgrade(plan_id):
+    if current_user.username == "Admin":
+        return redirect(url_for("plans"))
+
+    if plan_id not in ["normal", "premium"]:
+        flash("Invalid plan", "danger")
+        return redirect(url_for("plans"))
+
+    previous_plan = current_user.plan
+
+    if previous_plan == plan_id:
+        flash(f"You are already on the {plan_id} plan.", "info")
+        return redirect(url_for("plans"))
+
+    user_doc_id = int(current_user.id)
+    users_table.update({"plan": plan_id}, doc_ids=[user_doc_id])
+    current_user.plan = plan_id
+
+    plan_order = {"free": 0, "normal": 1, "premium": 2}
+    direction = "Upgraded" if plan_order[plan_id] > plan_order[previous_plan] else "Downgraded"
+
+    flash(f"{direction} to {plan_id.capitalize()} plan!", "success")
+    return redirect(url_for("plans"))
 
 if __name__ == "__main__":
     app.run(debug=True)
