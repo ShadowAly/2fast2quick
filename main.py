@@ -10,6 +10,7 @@
 # --------------------------------------------------------------------------------------------------------------------------------
 # Uvozi knjižence
 # --------------------------------------------------------------------------------------------------------------------------------
+
 import os
 from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, flash, session
@@ -24,7 +25,7 @@ import random
 import string
 from dotenv import load_dotenv
 import stripe
-load_dotenv() # Naloži .env datoteko
+load_dotenv() # <- Naloži .env datoteko
 
 
 # --------------------------------------------------------------------------------------------------------------------------------
@@ -34,15 +35,22 @@ load_dotenv() # Naloži .env datoteko
 # Ustvari instanco Flaska in nastavi SECRET_KEY za zaščito sej.
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+
+# Secret key za stripe API (za obdelavo plačil itd...).
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+
+
+# Domena aplikacije (npr. za redirect).
 YOUR_DOMAIN = os.getenv("DOMAIN")
 
+# Dictionary za stripe ID-je cen za vse plane.
 PRICES = {
     "normal": os.getenv("STRIPE_NORMAL_PRICE_ID"),
     "premium": os.getenv("STRIPE_PREMIUM_PRICE_ID")
 }
 
-# Ustvari TinyDB database, kjer se bodo shranjevali podatki v datoteki 'user.json'.
+
+# Ustvari TinyDB database, kjer se bodo shranjevali uporabnikovi podatki v datoteki 'user.json'.
 # Prav tako pa ustvari tudi vse tabele itd...
 db = TinyDB("user.json")
 users_table = db.table("users")
@@ -51,7 +59,7 @@ password_reset_codes_table = db.table("password_reset_codes")
 games_table = db.table("games")
 servers_table = db.table("servers")
 
-# Bcrypt za enkripcijo/šifriranje gesel in yagmail za pošiljanje e-pošte do uporabnika.
+# Bcrypt za enkripcijo/šifriranje gesel in yagmail za pošiljanje e-pošte do uporabnika (npr. password reset).
 bcrypt = Bcrypt(app)
 yag = yagmail.SMTP(user=os.getenv("EMAIL_USERNAME"), password=os.getenv("EMAIL_PASSWORD"))
 
@@ -65,33 +73,46 @@ login_manager.login_view = "email"
 # K O D A ( ͡° ͜ʖ ͡°)
 # --------------------------------------------------------------------------------------------------------------------------------
 
-# Definiraj user class za flask login.
-#dodaj komentarje
+# Definiraj user class za flask login (UserClass predstavlja uporabnika).
 class UserClass(UserMixin):
-    def __init__(self, user_id, username, email, password, gender, verified=False, plan="free"):
+    def __init__(self, user_id, username, email, password, gender, verified=False, plan="free"):    
+        # Lastnosti računa uporabnika
         self.id = user_id
         self.username = username
         self.email = email
         self.password = password
         self.gender = gender
-        self.verified = verified
-        self.plan = plan
+        self.verified = verified    # <- Pove ali je user potrjen / je potrdil email...
+        self.plan = plan            # <- Pove kateri plan/naročnino ima user.
 
-#dodaj komentarje
+    # Čekiri ali uporabnik lahko ustvari nov game server.
     def can_create_server(self):
+        # Admin ima vedno dovoljenje za ustvarjanje serverjev, zato returni true.
         if self.username == "Admin":
             return True
+        
+        # User z free planom ne more ustvariti serverja, zato returni false.
         if self.plan == "free":
             return False
+        
+        # GET ALL THE SERVERS OR ELSE I USE THIS HAMMER TO BREAK EVERYTHING IN MY STUDIO!!!
+        # Vsi serverji k jih je ustvaril uporabnik.
         user_servers = servers_table.search(Query().created_by == self.username)
+
+        # Določi največje število serverjev glede na plan/naročnino.
         max_servers = 3 if self.plan == "normal" else 10
+
+        # Returni true, če uporabnik še ni dosegel omejitve, če ne pa false .
         return len(user_servers) < max_servers
 
 
 # Funkcija za nalaganje uporabnika iz ID-ja.
 @login_manager.user_loader
 def load_user(user_id):
+    # Pridobi vse podatke o uporabniku po njegovem ID-ju.
     user_data = users_table.get(doc_id=int(user_id))
+
+    # Če uporabnik obstaja, ustvari in returni 'UserClass'...
     if user_data:
         return UserClass(
             user_data.doc_id,
@@ -102,6 +123,8 @@ def load_user(user_id):
             user_data.get("verified", False),
             user_data.get("plan", "free")
         )
+    
+    # ...sicer pa returni none.
     return None
 
 
@@ -110,9 +133,10 @@ def generate_verification_code():
     return "".join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
 
-# Pošlji verification email
+# Pošlji verification email z generirano kodo.
 def send_verification_email(email, code):
     try:
+        # HTML koda za email
         contents = f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -163,14 +187,17 @@ def send_verification_email(email, code):
     </body>
     </html>
     """
-
+        # Pošlji email preko yagmail.
         yag.send(to=email, subject="Email Verification Code", contents=contents)
         return True
+    
+    # V primeru napake jo printej pa returni false. Upajmo da ne pride do tega (x_x)...
     except Exception as e:
         print(f"Error sending email: {e}")
         return False
 
-# Pošlji generirano kodo prek emaila :D
+
+# Pošlji generirano kodo za nastavitev novega gesla prek emaila :D
 def send_password_reset_code(email, code):
     try:
         contents = f"""
@@ -231,12 +258,20 @@ def send_password_reset_code(email, code):
     </body>
     </html>
      """
-     
+
+        # Kot prej, pošlji kodo prek yagmail...
         yag.send(to=email, subject="Password Reset Code", contents=contents)
         return True
+    
+    # ... in spet printi napako in vrni false v primeru da gre karkol narobe.
     except Exception as e:
         print(f"Error sending email: {e}")
         return False
+
+
+# --------------------------------------------------------------------------------------------------------------------------------
+# Obrazci
+# --------------------------------------------------------------------------------------------------------------------------------
 
 # Obrazec za vnos email-a pri ustvarjanju računa.
 class EmailVerificationForm(FlaskForm):
@@ -249,10 +284,12 @@ class EmailVerificationForm(FlaskForm):
         if users_table.contains(User.email == email.data):
             raise ValidationError("Email already used")
 
+
 # Obrazec za vnos verifikacijske kode.
 class VerificationCodeForm(FlaskForm):
     code = StringField(validators=[InputRequired(), Length(min=6, max=6)], render_kw={"placeholder": "Verification Code"})
     submit = SubmitField("Verify")
+
 
 # Obrazec za registracijo uporabnika.
 class SignupForm(FlaskForm):
@@ -275,15 +312,18 @@ class LoginForm(FlaskForm):
     password = PasswordField(validators=[InputRequired(), Length(min=8, max=20)], render_kw={"placeholder": "Password"})
     submit = SubmitField("Login")
 
+
 # Obrazec za spremembo gesla.
 class ResetPasswordRequestForm(FlaskForm):
     email = StringField(validators=[InputRequired(), Email()], render_kw={"placeholder": "Email"})
     submit = SubmitField("Request code")
 
+
 # Obrazec za vnos varnostne kode za spremembo gesla.
 class ResetCodeForm(FlaskForm):
     code = StringField(validators=[InputRequired(), Length(min=6, max=6)], render_kw={"placeholder": "Reset Code"})
     submit = SubmitField("Verify Code")
+
 
 # Obrazec za vnos novega gesla. Jz vem da ga bom pozabu k sm knedl...
 class NewPasswordForm(FlaskForm):
@@ -304,60 +344,97 @@ class NewPasswordForm(FlaskForm):
 def home():
     return render_template("home.html")
 
+
+# --------------------------------------------------------------------------------------------------------------------------------
+# Sign up / register
+# --------------------------------------------------------------------------------------------------------------------------------
+
 # Vnos email-a za začetek registracije.
 @app.route("/email-verification", methods=["GET", "POST"])
 def email():
+    # Ustvari obrazec za vnos emaila.
     form = EmailVerificationForm()
+    
+    # Če je obrazec izpolnjen...
     if form.validate_on_submit():
+        # ... ustvari verification kodo in jo pošlji na email.
         verification_code = generate_verification_code()
+       
+        # Shrani kodo v database, ki je veljavna 15 minut.
         if send_verification_email(form.email.data, verification_code):
-            verification_codes_table.insert({ # <- Shrani kodo v database, ki je veljavna 15 minut.
+            verification_codes_table.insert({
                 "email": form.email.data,
                 "code": verification_code,
                 "created_at": datetime.now().isoformat(),
                 "expires_at": (datetime.now() + timedelta(minutes=15)).isoformat()
             })
-            session["email"] = form.email.data
-            return redirect(url_for("verify_code"))
+
+            session["email"] = form.email.data      # <- Shrani email v sejo za naprej.
+            return redirect(url_for("verify_code")) # <- Redirect na stran za vnos kode.
         else:
+            # Če se email ni uspel poslat, povej uporabniku.
             flash("Failed to send verification email. Please try again.")
+
+    # Prikaži obrazec za vnos emaila :D
     return render_template("email.html", form=form)
+
 
 # Preveri potrditveno kodo.
 @app.route("/verify-code", methods=["GET", "POST"])
 def verify_code():
+    # Če email ni shranjen, preusmeri nazaj na vnos emaila.
     if "email" not in session:
         return redirect(url_for("email"))
+    
+    # Obrazec za vnos verifikacijske kode.
     form = VerificationCodeForm()
+
+    # Če je obrazec izpolnjen pravilno...
     if form.validate_on_submit():
         Verification = Query()
+
+        # ...poišči kodo, ki ustreza vnešeni kodi in email naslov, ki smo ga shranili v seji.
         code_record = verification_codes_table.get((Verification.email == session["email"]) & (Verification.code == form.code.data.upper()))
         if code_record:
+            # Čekiri če je koda še veljavna...
             expires_at = datetime.fromisoformat(code_record["expires_at"])
             if datetime.now() < expires_at:
-                session["email_verified"] = True
-                return redirect(url_for("signup"))
+                session["email_verified"] = True    # <- Označi, da je email kul.
+                return redirect(url_for("signup"))  # <- Redirecti na registracijo :D
             else:
+                # ... če ne uporabniku sporoči, da ni več veljavna.
                 flash("Verification code has expired. Please request a new one.")
         else:
+            # V primeru da se koda ne ujema, to sporoči uporabniku.
             flash("Invalid verification code. Please try again.")
+
+    # Prikaži obrazec za vnos kode.
     return render_template("verify_code.html", form=form)
+
 
 # Registracija novega uporabnika itd...
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
+    # Če email ni shranjen ali pa ni potrjen, preusmeri na začetek postopka.
     if "email" not in session or not session.get("email_verified"):
         return redirect(url_for("email"))
+    
+    # Obrazec za registracijo novega uporabinka.
     form = SignupForm()
+
+    # Če je obrazec pravilno izpolnjen...
     if form.validate_on_submit():
+        # ... "hashiraj" (??? idk xD) geslo uporabnika.
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
+        
+        # Vstavi novega uporabnika v bazooooo. Welcome buddy :))))
         user_id = users_table.insert({
             "username": form.username.data,
             "email": session["email"],
             "password": hashed_password,
             "gender": form.gender.data,
             "verified": True,
-            "plan": "free"
+            "plan": "free" # <- Default/privzeta vrednost.
         })
 
         # Avtomatično prijavi uporabnika po registraciji
@@ -371,44 +448,71 @@ def signup():
         # Odstrani porabljeno verifikacijsko kodo.
         Verification = Query()
         verification_codes_table.remove(Verification.email == user.email)
+
+        # Preusmeri uporabnika na dashboard.
         return redirect(url_for("dashboard"))
+    
+    # Prikaži obrazec za registracijo.
     return render_template("signup.html", form=form)
+
+
+# --------------------------------------------------------------------------------------------------------------------------------
+# Login
+# --------------------------------------------------------------------------------------------------------------------------------
 
 # Prijava uporabika.
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    # Ustvari obrazec za login :D
     form = LoginForm()
+
+    # Če je bil obrazec pravilno izpolnjen...
     if form.validate_on_submit():
         User = Query()
 
-        # Preveri, ali je vpisan email...
+        # ...najprej preveri ali je vpisan email...
         user_data = users_table.get(User.email == form.username_or_email.data)
-        if not user_data: # ...če ni, preveri še username.
+        if not user_data: # ... če ni, preveri še username.
             user_data = users_table.get(User.username == form.username_or_email.data)
 
+        # Če uporabnik obstaja in se geslo ujema...
         if user_data and bcrypt.check_password_hash(user_data["password"], form.password.data):
-            # Preveri, ali je račun verified
+            # ... preveri, ali je račun verified.
             if not user_data.get("verified", False):
                 flash("Please verify your email first. Check your inbox.")
                 return redirect(url_for("email"))
            
-            # Prijavi uporabnika
+            # Prijavi uporabnika.
             user = UserClass(user_data.doc_id, user_data["username"], user_data["email"], user_data["password"], user_data["gender"], user_data.get("verified", False))
             login_user(user)
             return redirect(url_for("dashboard"))
+        
+        # Če je prijava neuspešna, to sporoči uporabniku.
         flash("Invalid username/email or password")
+    
+    # Prikaži login obrazec.
     return render_template("login.html", form=form)
 
+
+# --------------------------------------------------------------------------------------------------------------------------------
+# Reset password
+# --------------------------------------------------------------------------------------------------------------------------------
 @app.route("/reset-password-request", methods=["GET", "POST"])
 def reset_password_request():
+    # Obrazec za vnos email naslova za resetiranje gesla.
     form = ResetPasswordRequestForm()
+
+    # Najprej preveri če je obrazec pravilno izpolnjen, kot vedno.
     if form.validate_on_submit():
         User = Query()
         user_data = users_table.get(User.email == form.email.data)
 
         # Ustvari kodo za resetiranje gesla.
         if user_data:
+            # Ustvari verifikacijsko kodo za resetiranje gesla.
             reset_code = generate_verification_code()
+
+            # Shrani kodo v database z rokom veljavnosti 15 minut.
             password_reset_codes_table.insert({
                 "email": form.email.data,
                 "code": reset_code,
@@ -422,11 +526,15 @@ def reset_password_request():
                 flash("Check your email for the reset code")
                 return redirect(url_for("reset_code"))
             else:
+                # V primeru napake, sporoči uporabniku.
                 flash("Error sending reset code. Please try again.")
         else:
+            # Prikaži sporočilo da je bila koda poslana. Yay! :D
             flash("You'll receive a reset code on email.")
             return redirect(url_for("login"))
+    
     return render_template("reset_password_request.html", form=form)
+
 
 # Reset code stuff....
 @app.route("/reset-password-code", methods=["GET", "POST"])
@@ -450,6 +558,7 @@ def reset_code():
             flash("Invalid code. Please try again.")
     return render_template("reset_code.html", form=form)
 
+
 @app.route("/set-new-password", methods=["GET", "POST"])
 def set_new_password():
     if not session.get("code_verified") or "reset_email" not in session:
@@ -472,23 +581,31 @@ def set_new_password():
             flash("User not found.")
     return render_template("set_new_password.html", form=form)
 
+
+#
 @app.route("/dashboard")
 @login_required
 def dashboard():
     return render_template("dashboard.html", username=current_user.username, gender=current_user.gender)
 
+
+#
 @app.route("/logout")
 @login_required
 def logout():
     logout_user()
     return redirect(url_for("home"))
 
+
+#
 @app.route("/games", methods=["GET"])
 @login_required
 def games():
     all_games = games_table.all()
     return render_template("games.html", games=all_games)
 
+
+#
 @app.route("/games/<game_id>", methods=["GET"])
 @login_required
 def game_servers(game_id):
@@ -526,6 +643,7 @@ def game_servers(game_id):
     )
 
 
+#
 @app.route("/games/<game_id>/add-server", methods=["GET", "POST"])
 @login_required
 def add_server(game_id):
@@ -660,6 +778,7 @@ def delete_game(game_id):
     flash("Game deleted successfully.", "success")
     return redirect(url_for("games"))
 
+
 @app.route("/plans")
 @login_required
 def plans():
@@ -667,6 +786,7 @@ def plans():
         flash("Admin has unlimited access", "info")
         return redirect(url_for("dashboard"))
     return render_template("plans.html")
+
 
 @app.route("/create-checkout-session/<plan_id>", methods=["POST"])
 @login_required
@@ -697,6 +817,7 @@ def create_checkout_session(plan_id):
         flash("Payment processing error. Please try again.", "danger")
         return redirect(url_for("plans"))
 
+
 @app.route("/payment-success")
 @login_required
 def payment_success():
@@ -713,6 +834,7 @@ def payment_success():
     
     flash(f"Payment successful! Your plan has been changed to {plan_id.capitalize()}.", "success")
     return redirect(url_for("plans"))
+
 
 @app.route("/upgrade/<plan_id>")
 @login_required
@@ -737,5 +859,7 @@ def upgrade(plan_id):
     flash(f"{direction} to {plan_id.capitalize()} plan!", "success")
     return redirect(url_for("plans"))
 
+
+# Zalaufi skripto :D
 if __name__ == "__main__":
     app.run(debug=True)
