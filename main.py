@@ -539,38 +539,56 @@ def reset_password_request():
 # Reset code stuff....
 @app.route("/reset-password-code", methods=["GET", "POST"])
 def reset_code():
+    # Preveri, če je email shranjen v seji.
     if "reset_email" not in session:
         return redirect(url_for("reset_password_request"))
+    
+    # Obrazec za vnos kode.
     form = ResetCodeForm()
+
+    # Če je forma pravilno izpolnjena...
     if form.validate_on_submit():
         ResetCode = Query()
+
+        # Najdi kodo v bazi, ki se ujema.
         code_record = password_reset_codes_table.get((ResetCode.email == session["reset_email"]) & (ResetCode.code == form.code.data.upper()))
 
-        # Preveri, če je koda še veljavna
         if code_record:
+            # Preveri, če je koda še veljavna.
             expires_at = datetime.fromisoformat(code_record["expires_at"])
             if datetime.now() < expires_at:
-                session["code_verified"] = True
-                return redirect(url_for("set_new_password"))
+                session["code_verified"] = True                 # <- Označi da je koda potrjena.
+                return redirect(url_for("set_new_password"))    # <- Preusmeri stran na nastavitev novega gesla :D
             else:
+                # Obvesti uporabnika da je koda potekla oz. ni več veljavna.
                 flash("Code expired. Please request a new one.")
         else:
             flash("Invalid code. Please try again.")
+ 
     return render_template("reset_code.html", form=form)
 
 
+# Nastavi novo geslo... finally xD
 @app.route("/set-new-password", methods=["GET", "POST"])
 def set_new_password():
+    # Preveri, ali je koda potrjena in email shranjen v seji.
     if not session.get("code_verified") or "reset_email" not in session:
         return redirect(url_for("reset_password_request"))
+    
+    # Obrazec za vnos novega gesla.
     form = NewPasswordForm()
+
+    # Če je forma pravilno izpolnjena...
     if form.validate_on_submit():
         User = Query()
         user_data = users_table.get(User.email == session["reset_email"])
+
         if user_data:
             # Posodobi geslo z novim.
             hashed_password = bcrypt.generate_password_hash(form.password.data).decode("utf-8")
             users_table.update({"password": hashed_password}, doc_ids=[user_data.doc_id])
+            
+            # Odstrani porabljeno kodo iz baze itd...
             ResetCode = Query()
             password_reset_codes_table.remove(ResetCode.email == session["reset_email"])
             session.pop("reset_email", None)
