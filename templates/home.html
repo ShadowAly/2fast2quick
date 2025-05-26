@@ -1,7 +1,27 @@
 {% extends "base.html" %}
 
+    {% block menu %}
 
-{% block content %}
+    {% if current_user.is_authenticated %}
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="{{ url_for('dashboard') }}" class="navbar-logo">
+                <img src="{{ url_for('static', filename='logo.svg') }}" alt="Too Fast Four You Logo">
+            </a>
+            <ul class="navbar-menu">
+                <li><a href="{{ url_for('dashboard') }}">Home</a></li>
+                <li><a href="{{ url_for('games') }}">Game Servers</a></li>
+                <li><a href="{{ url_for('plans') }}">Plans</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    {% endif %}
+    {% endblock %}
+
+    {% block content %}
+
     <div class="home-container">
         <h1 class="home-title">
             Welcome to <span class="highlight">Too Fast Four You</span>!
@@ -42,21 +62,23 @@
             Our community is welcoming, and our servers are ready to host your best gaming moments.
         </p>
 
+        {% if not current_user.is_authenticated %}
         <div class="home-buttons">
             <a href="{{ url_for('email') }}" class="home-btn-primary">Sign Up</a>
             <a href="{{ url_for('login') }}" class="home-btn-secondary">Login</a>
         </div>
+        {% endif %}
     </div>
 
-    
     <div class="logo-team-section">
         <img src="{{ url_for('static', filename='logo.svg') }}" 
-            alt="Too Fast Four You Logo" 
-            class="logo-img">
+             alt="Too Fast Four You Logo" 
+             class="logo-img">
         <p class="team-credit">The Too Fast For You Team</p>
     </div>
 
-<footer class="footer mt-5 text-center">
+    <footer class="footer mt-5 text-center">
         <p>&copy; 2025 <span class="highlight">2F4Y</span>. All Rights Reserved.</p>
-</footer>
+    </footer>
+
 {% endblock %}
