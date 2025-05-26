@@ -1,4 +1,4 @@
-![image](/static/banner.png "2F4Y Hosting Logo"){ width="420" style="display: block; margin: 0 auto;" }
+![image](/static/banner.png "2F4Y Hosting Logo")
 
 # <p style="text-align: center;">⚡ 2F4Y Hosting ⚡</p>
 
