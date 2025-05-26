@@ -1,15 +1,11 @@
 ![image](/static/banner.png "2F4Y Hosting Logo")
 
-# <p style="text-align: center;">⚡ 2F4Y Hosting ⚡</p>
-
-
-## Zbudi se prijatelj, to je readme.md file za  2F4Y.gg
+## Zbudi se prijatelj, to je readme.md file za 2F4Y.gg
 Pred vami je spletna stran za iskanje igralnih društev in iskanje community serverjov za igre, ki nimajo več uradne podpore. Poslovna ideja spletne strani/aplikacije je, da ponudimo ljubiteljem starih iger da lahko še vedno uživajo v teh igrah (CS 1.6/source, halo 1 in 2, team fortress classic, quake, gta 4 multiplayer, razni call of duty, nfs, far cry ...) lahko so tudi novejše v primeru, da podpirajo lastne strežnike (phasmophobia, lethal company ...) in modifikacije iger (WreckMP, Synergy, Natural Selection, Sven coop... ).
 
 V spletni strani bo tudi premium naročnina, ki ponuja navigiranje strani brez oglasov in gostovanja serverjev, ustvarjanja društev/skupin, ustvarjanje turnirjev (uporabniki lahko tudi stavijo, kdo bo najboljši), s tem tudi dobiš posebno barvo in značke ob uporabniškem imenu glede na vrsto naročnine.
 
 Spletna stran bi tudi vsebovala donacije, glede na višino donacije različne posebne barve in značke.
-
 
 ### ✅ Prednosti
 - Specializirana platforma – Osredotočena na stare in moddane igre, kar pritegne nišno občinstvo.
