@@ -1,15 +1,12 @@
-# ================================================================================================================================
+# ================================================================================================
 # Main.py
-# 
-# 
-# 
-# 
-# ================================================================================================================================
+# V tej datoteki se nahaja celotna skripta/koda za spletno stran.
+# ================================================================================================
 
 
-# --------------------------------------------------------------------------------------------------------------------------------
-# Uvozi knjižence
-# --------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------
+# Uvozi knjižence.
+# ------------------------------------------------------------------------------------------------
 
 import os
 from datetime import datetime, timedelta
@@ -25,12 +22,12 @@ import random
 import string
 from dotenv import load_dotenv
 import stripe
-load_dotenv() # <- Naloži .env datoteko
+load_dotenv() # <- Naloži .env datoteko.
 
 
-# --------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------
 # Glavne spremenljivke in drugo... I guess?
-# --------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------
 
 # Ustvari instanco Flaska in nastavi SECRET_KEY za zaščito sej.
 app = Flask(__name__)
@@ -69,9 +66,9 @@ login_manager.init_app(app)
 login_manager.login_view = "email"
 
 
-# --------------------------------------------------------------------------------------------------------------------------------
-# K O D A ( ͡° ͜ʖ ͡°)
-# --------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------
+# K  O  D  A   ( ﾉ ﾟｰﾟ)ﾉ
+# ------------------------------------------------------------------------------------------------
 
 # Definiraj user class za flask login (UserClass predstavlja uporabnika).
 class UserClass(UserMixin):
@@ -102,7 +99,7 @@ class UserClass(UserMixin):
         # Določi največje število serverjev glede na plan/naročnino.
         max_servers = 3 if self.plan == "normal" else 10
 
-        # Returni true, če uporabnik še ni dosegel omejitve, če ne pa false .
+        # Returni true, če uporabnik še ni dosegel omejitve, če ne pa false.
         return len(user_servers) < max_servers
 
 
@@ -127,6 +124,10 @@ def load_user(user_id):
     # ...sicer pa returni none.
     return None
 
+
+# ------------------------------------------------------------------------------------------------
+# Email za verifikacijo uporabniškega računa.
+# ------------------------------------------------------------------------------------------------
 
 # Funkcija za generiranje random kode za potrditev. To kodo bomo nato poslali uporabniku na email :D
 def generate_verification_code():
@@ -196,6 +197,10 @@ def send_verification_email(email, code):
         print(f"Error sending email: {e}")
         return False
 
+
+# ------------------------------------------------------------------------------------------------
+# Email za ponastavitev gesla.
+# ------------------------------------------------------------------------------------------------
 
 # Pošlji generirano kodo za nastavitev novega gesla prek emaila :D
 def send_password_reset_code(email, code):
@@ -269,9 +274,9 @@ def send_password_reset_code(email, code):
         return False
 
 
-# --------------------------------------------------------------------------------------------------------------------------------
-# Obrazci
-# --------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------
+# Obrazci / Forms
+# ------------------------------------------------------------------------------------------------
 
 # Obrazec za vnos email-a pri ustvarjanju računa.
 class EmailVerificationForm(FlaskForm):
@@ -339,15 +344,15 @@ class NewPasswordForm(FlaskForm):
             raise ValidationError("New password must be different from current password")
 
 
-# Home page
+# Home page.
 @app.route("/")
 def home():
     return render_template("home.html")
 
 
-# --------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------
 # Sign up / register
-# --------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------
 
 # Vnos email-a za začetek registracije.
 @app.route("/email-verification", methods=["GET", "POST"])
@@ -456,9 +461,9 @@ def signup():
     return render_template("signup.html", form=form)
 
 
-# --------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------
 # Login
-# --------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------
 
 # Prijava uporabika.
 @app.route("/login", methods=["GET", "POST"])
@@ -494,9 +499,10 @@ def login():
     return render_template("login.html", form=form)
 
 
-# --------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------
 # Reset password
-# --------------------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------------------------
+
 @app.route("/reset-password-request", methods=["GET", "POST"])
 def reset_password_request():
     # Obrazec za vnos email naslova za resetiranje gesla.
@@ -532,7 +538,8 @@ def reset_password_request():
             # Prikaži sporočilo da je bila koda poslana. Yay! :D
             flash("You'll receive a reset code on email.")
             return redirect(url_for("login"))
-    
+   
+    # Prikaži obrazec za zahtevo po spremembi gesla.
     return render_template("reset_password_request.html", form=form)
 
 
@@ -563,12 +570,14 @@ def reset_code():
                 # Obvesti uporabnika da je koda potekla oz. ni več veljavna.
                 flash("Code expired. Please request a new one.")
         else:
+            # V primeru da se koda ne ujema, to sporoči uporabniku.
             flash("Invalid code. Please try again.")
- 
+
+    # Prikaži obrazec a vnos verifikacijske kode.
     return render_template("reset_code.html", form=form)
 
 
-# Nastavi novo geslo... finally xD
+# Nastavi novo geslo... finally.
 @app.route("/set-new-password", methods=["GET", "POST"])
 def set_new_password():
     # Preveri, ali je koda potrjena in email shranjen v seji.
@@ -596,61 +605,90 @@ def set_new_password():
             flash("Password updated. You can log in now.")
             return redirect(url_for("login"))
         else:
+            # Če uporabnika ni bilo mogoče najti, to sporoči.
             flash("User not found.")
+    
+    # Prikaži obrazec za nastavitev novega gesla :D
     return render_template("set_new_password.html", form=form)
 
 
-#
+# ------------------------------------------------------------------------------------------------
+# Dashboard / "nadzorna plošča"?
+# ------------------------------------------------------------------------------------------------
+
+# Prikaži dashboard za prijavo uporabnika.
 @app.route("/dashboard")
-@login_required
+@login_required # <- Uporabnik rabi bit prijavlen.
 def dashboard():
     return render_template("dashboard.html", username=current_user.username, gender=current_user.gender)
 
 
-#
+# ------------------------------------------------------------------------------------------------
+# Logout / izpiši me
+# ------------------------------------------------------------------------------------------------
+
+# Odjavi uporabnika iz strani.
 @app.route("/logout")
-@login_required
+@login_required # <- Uporabnik rabi bit prijavlen.
 def logout():
+    # Odjavi uporabinka iz trenutne seje.
     logout_user()
+
+    # Preusmeri na home page.
     return redirect(url_for("home"))
 
 
-#
+# ------------------------------------------------------------------------------------------------
+# Seznam podprtih iger
+# ------------------------------------------------------------------------------------------------
+
+# Prikaži seznam vseh iger, ki jih podpiramo.
 @app.route("/games", methods=["GET"])
-@login_required
+@login_required # <- Uporabnik rabi bit prijavlen.
 def games():
+    # Pridobi vse igre iz baze.
     all_games = games_table.all()
     return render_template("games.html", games=all_games)
 
 
-#
+# ------------------------------------------------------------------------------------------------
+# Seznam serverjev glede na igro
+# ------------------------------------------------------------------------------------------------
+
+# Prikaži vse serverje za določeno igro. Lahko tudi iščeš po imenu in filtriraš rezultate.
 @app.route("/games/<game_id>", methods=["GET"])
-@login_required
+@login_required # <- Uporabnik rabi bit prijavlen.
 def game_servers(game_id):
+    # Pridobi igro po ID-ju.
     game = games_table.get(doc_id=int(game_id))
     if not game:
         flash("Game not found.", "danger")
         return redirect(url_for("games"))
 
+    # Preberi iskalni niz in izbrano regijo iz URL parametrov.
     search_query = request.args.get("search", "").strip().lower()
     region_filter = request.args.get("region", "").strip()
 
+    # Vse regije za serverje...
     all_regions = ["North America", "Europe", "Asia", "Oceania", "South America", "Africa"]
     all_servers = servers_table.search(Query().game_id == int(game_id))
 
     filtered_servers = []
     for server in all_servers:
+        # Preveri, če se iskalni niz ujema z imenom, opisom ali developerjem.
         matches_search = (
             search_query in server.get("name", "").lower()
             or search_query in server.get("description", "").lower()
             or search_query in server.get("created_by", "").lower()
         ) if search_query else True
 
+        # Preveri ali se server ujema z izbrano regijo.
         matches_region = (server.get("region") == region_filter) if region_filter else True
 
         if matches_search and matches_region:
             filtered_servers.append(server)
 
+    # Prikaži rezultate iskanja ali filtriranja.
     return render_template(
         "servers.html",
         game=game,
@@ -661,22 +699,30 @@ def game_servers(game_id):
     )
 
 
-#
+# ------------------------------------------------------------------------------------------------
+# Dodajanje novega strežnika za igro
+# ------------------------------------------------------------------------------------------------
+
+# Omogoča uporabniku dodati nov strežnik za določeno igro.
 @app.route("/games/<game_id>/add-server", methods=["GET", "POST"])
-@login_required
+@login_required # <- Uporabnik rabi bit prijavlen.
 def add_server(game_id):
+    # Pridobi igro.
     game = games_table.get(doc_id=int(game_id))
     if not game:
+        # V primeru da se igra ne najde, to sporoči uporabniku.
         flash("Game not found.", "danger")
         return redirect(url_for("games"))
 
     if request.method == "POST":
+        # Pridobi podatke iz forma.
         name = request.form.get("name")
         region = request.form.get("region")
         description = request.form.get("description", "")
         max_players = request.form.get("max_players", "")
         ip = request.form.get("ip")
 
+        # Preveri obvezna polja.
         if not name or not region or not ip:
             flash("Name, region, and IP are required!", "danger")
         else:
@@ -686,6 +732,7 @@ def add_server(game_id):
                 flash("Max players must be a number!", "danger")
                 max_players = None
 
+            # Če je vse okej, shrani nov strežnik v database.
             if max_players is not None:
                 d = datetime.now()
                 servers_table.insert({
@@ -703,30 +750,48 @@ def add_server(game_id):
             else:
                 flash("Invalid number for max players.", "danger")
 
+    # Prikaži form za dodajanje strežnika.
     regions = ["North America", "Europe", "Asia", "Oceania", "South America", "Africa"]
     max_players_list = [5, 10, 15, 20, 25, 30]
     return render_template("add_server.html", game=game, regions=regions, max_players_list=max_players_list)
 
 
+# ------------------------------------------------------------------------------------------------
+# Podrobnosti serverjev
+# ------------------------------------------------------------------------------------------------
+
+# Prikaži podrobnosti posameznega serverja.
 @app.route("/games/<game_id>/server/<server_id>", methods=["GET"])
-@login_required
+@login_required # <- Uporabnik rabi bit prijavlen.
 def server_details(game_id, server_id):
+    # Pridobi igro.
     game = games_table.get(doc_id=int(game_id))
+
+    # Preveri ali igra obstaja...
     if not game:
+        # ... in če ne obstaja, to sporoči uporabniku.
         flash("Game not found.", "danger")
         return redirect(url_for("games"))
 
+    # Pridobi server.
     server = servers_table.get(doc_id=int(server_id))
     if not server:
         flash("Server not found.", "danger")
         return redirect(url_for("game_servers", game_id=game_id))
 
+    # Prikaži podrobnosti serverja.
     return render_template("server_details.html", server=server)
 
 
+# ------------------------------------------------------------------------------------------------
+# [ADMIN-ONLY] Dodajanje iger
+# ------------------------------------------------------------------------------------------------
+
+# Dodaj igro, če je uporabnik admin.
 @app.route("/admin/add-game", methods=["GET", "POST"])
 @login_required
 def add_game():
+    # Če uporabnik ni admin, preusmeri na dashboard.
     if current_user.username != "Admin":
         return redirect(url_for("dashboard"))
 
@@ -735,6 +800,7 @@ def add_game():
         about_html = request.form.get("about_html")
 
         if name and about_html:
+            # Shrani igro v bazo.
             games_table.insert({
                 "name": name,
                 "about_html": about_html
@@ -747,6 +813,11 @@ def add_game():
     return render_template("add_game.html")
 
 
+# ------------------------------------------------------------------------------------------------
+# [ADMIN + USER] Brisanje serverjev
+# ------------------------------------------------------------------------------------------------
+
+# Brisanje serverjev za navadne uporabnike, prav tako pa za admine.
 @app.route("/games/<game_id>/server/<server_id>/delete", methods=["POST"])
 @login_required
 def delete_server(game_id, server_id):
@@ -756,8 +827,13 @@ def delete_server(game_id, server_id):
         return redirect(url_for("games"))
 
     server = servers_table.get(doc_id=int(server_id))
+    
+    # Če serverja ni mogoče najti...
     if not server:
+        # ... to napako javi uporabniku.
         flash("Server not found.", "danger")
+
+    # Dovoli brisanje, če je uporabnik admin ali ustvarjalec serverja.
     elif current_user.username == "Admin" or server.get("created_by") == current_user.username:
         try:
             servers_table.remove(doc_ids=[int(server_id)])
@@ -770,6 +846,11 @@ def delete_server(game_id, server_id):
     return redirect(url_for("game_servers", game_id=game_id))
 
 
+# ------------------------------------------------------------------------------------------------
+# [ADMIN-ONLY] Brisanje vseh strežnikov.
+# ------------------------------------------------------------------------------------------------
+
+#
 @app.route("/admin/delete-all-servers", methods=["POST"])
 @login_required
 def delete_all_servers():
@@ -781,6 +862,11 @@ def delete_all_servers():
     return redirect(url_for("games"))
 
 
+# ------------------------------------------------------------------------------------------------
+# [ADMIN-ONLY] Brisanje iger
+# ------------------------------------------------------------------------------------------------
+
+#
 @app.route("/admin/delete-game/<game_id>", methods=["POST"])
 @login_required
 def delete_game(game_id):
@@ -797,15 +883,28 @@ def delete_game(game_id):
     return redirect(url_for("games"))
 
 
+# ------------------------------------------------------------------------------------------------
+# Ogled planov/naročnin (razen za admina seveda...)
+# ------------------------------------------------------------------------------------------------
+
+#
 @app.route("/plans")
 @login_required
 def plans():
+    # Če je uporabnuk admin...
     if current_user.username == "Admin":
+        # ... to sporoči uporabniku.
         flash("Admin has unlimited access", "info")
         return redirect(url_for("dashboard"))
+    # Sicer pa preusmeri na stran, kjer so prikazani vsi plani.
     return render_template("plans.html")
 
 
+# ------------------------------------------------------------------------------------------------
+# [STRIPE] Plačilo
+# ------------------------------------------------------------------------------------------------
+
+# Ustvari sejo za plačilo.
 @app.route("/create-checkout-session/<plan_id>", methods=["POST"])
 @login_required
 def create_checkout_session(plan_id):
@@ -813,8 +912,10 @@ def create_checkout_session(plan_id):
         abort(400, description="Invalid plan")
     
     try:
+        # Shrani izbrani paket v sejo.
         session["selected_plan"] = plan_id
         
+        # Ustvari stripe sejo.
         checkout_session = stripe.checkout.Session.create(
             line_items=[{
                 "price": PRICES[plan_id],
@@ -830,42 +931,58 @@ def create_checkout_session(plan_id):
             }
         )
         return redirect(checkout_session.url, code=303)
+    
     except Exception as e:
         app.logger.error(f"Stripe error: {str(e)}")
         flash("Payment processing error. Please try again.", "danger")
         return redirect(url_for("plans"))
 
 
+# Uspešno plačilo naročnine.
 @app.route("/payment-success")
 @login_required
 def payment_success():
+    # Pridobi trenutni plan in ga shrani v sejo.
     plan_id = session.get("selected_plan")
     
+    # Če naročnine ni mogoče najti pri trenutnem uporabniku...
     if not plan_id or plan_id not in ["normal", "premium"]:
+        # ... mu to sporoči.
         flash("Unable to determine your selected plan. Please contact support.", "danger")
         return redirect(url_for("plans"))
     
+    # Posodobi uporabnika v bazi.
     users_table.update({"plan": plan_id}, doc_ids=[int(current_user.id)])
     current_user.plan = plan_id
     
+    # Počisti plan iz seje.
     session.pop("selected_plan", None)
     
+    # Sporoči uporabniku, da je plačilo uspelo. Yipeeee! :D
     flash(f"Payment successful! Your plan has been changed to {plan_id.capitalize()}.", "success")
     return redirect(url_for("plans"))
 
 
+# ------------------------------------------------------------------------------------------------
+# [ADMIN-ONLY] "Ročna" nadgradnja paketa, namenjena samo za testiranje.
+# ------------------------------------------------------------------------------------------------
+
 @app.route("/upgrade/<plan_id>")
 @login_required
 def upgrade(plan_id):
+    # Če je uporabnik admin, ga preusmeri, saj ne potrebuje sprememb pri paketu.
     if current_user.username == "Admin":
         return redirect(url_for("plans"))
 
+    # Če je plan napačen oziroma ne obstaja, javi napako.
     if plan_id not in ["normal", "premium"]:
         flash("Invalid plan", "danger")
         return redirect(url_for("plans"))
 
+    # Shrani prejšnji plan.
     previous_plan = current_user.plan
 
+    # Če je trenutni plan enak prejšnjem, to javi uporabniku.
     if previous_plan == plan_id:
         flash(f"You are already on the {plan_id} plan.", "info")
         return redirect(url_for("plans"))
@@ -874,6 +991,7 @@ def upgrade(plan_id):
     users_table.update({"plan": plan_id}, doc_ids=[user_doc_id])
     current_user.plan = plan_id
 
+    # V primeru uspešne spremembe, sporoči da je vse kul.
     flash(f"{direction} to {plan_id.capitalize()} plan!", "success")
     return redirect(url_for("plans"))
 
