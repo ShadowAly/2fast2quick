@@ -1097,3 +1097,23 @@ body {
 .text-center {
 	text-align: center;
 }
+
+.custom-select {
+    padding: 0.3rem 0.75rem;
+    height: 2.5rem;
+    appearance: none;
+    background-color: #222;
+    color: #fff;
+    border: 1px solid #555;
+    border-radius: 8px;
+}
+
+.custom-select option {
+    color: #000;
+    background-color: #fff;
+}
+
+
+.custom-select::-ms-expand {
+    display: none;
+}
